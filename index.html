@@ -1,1 +1,3575 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PhotoForecast v8.6 Location Editor - No Best Right Now</title>
+<style>
+:root{
+  --bg:#070b09; --panel:#0e1712; --panel2:#13231a; --text:#f1f4ee; --muted:#aeb8ae;
+  --accent:#b9e28b; --gold:#f1d06b; --line:rgba(255,255,255,.11); --soft:rgba(185,226,139,.12);
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top left,#17221b 0,#070b09 45%,#040605 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:18px;line-height:1.45}
+.app{max-width:880px;margin:0 auto;padding-bottom:60px}
+.hero,.card{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:26px;padding:22px;margin-bottom:16px;box-shadow:0 18px 48px rgba(0,0,0,.24)}
+h1{font-size:clamp(2.35rem,9vw,4.1rem);line-height:.95;margin:0;font-weight:950;letter-spacing:-.06em;white-space:normal;overflow:visible}
+.section-title{color:var(--muted);font-weight:900;letter-spacing:.18em;text-transform:uppercase;font-size:.78rem;margin:0 0 16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+label{display:block;color:var(--muted);font-weight:850;margin-bottom:7px}
+select,input,textarea{width:100%;background:#112018;color:var(--text);border:1px solid rgba(185,226,139,.18);border-radius:18px;padding:14px 15px;font-size:1rem;outline:none}
+textarea{min-height:105px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+button,.maplink{border:0;border-radius:999px;padding:11px 14px;background:#223128;color:var(--text);font-weight:850;font-size:.9rem;white-space:nowrap;text-decoration:none;display:inline-block}
+button.primary,.maplink.primary{background:var(--accent);color:#071008}
+button.danger{background:#382021;color:#ffd1d1}
+.dashboard{display:grid;gap:10px}
+.best{display:grid;grid-template-columns:36px 1fr 62px;gap:12px;align-items:center;background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:19px;padding:13px;cursor:pointer}
+.rank{color:var(--gold);font-weight:950;font-size:1.1rem}
+.best strong,.item strong{display:block;font-size:1.04rem}
+.best span,.item span,.small{color:var(--muted);font-size:.9rem}
+.why{margin-top:5px;color:var(--muted);font-size:.9rem}
+.score{font-size:1.35rem;font-weight:950;text-align:right;color:var(--accent)}
+.tomorrow{display:grid;gap:10px}
+.tom-card{background:rgba(185,226,139,.07);border:1px solid rgba(185,226,139,.16);border-radius:19px;padding:15px}
+.tom-card strong{display:block;color:var(--accent);font-size:1.05rem;margin-bottom:4px}
+.status-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.checklist{display:grid;gap:10px;margin-top:10px}
+.checkitem{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:15px;padding:11px 12px;color:var(--muted);font-weight:800}
+.checkitem input{width:auto;accent-color:#b9e28b}
+.category-chip{background:rgba(120,169,111,.16);border-color:rgba(120,169,111,.30);color:#d5f2c2}
+.category-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.category-card{background:rgba(185,226,139,.08);border:1px solid rgba(185,226,139,.17);border-radius:18px;padding:14px;cursor:pointer}
+.category-card strong{display:block;color:var(--accent);font-size:1rem;margin-bottom:3px}
+.category-card span{color:var(--muted);font-size:.86rem}
+.category-card.active{background:rgba(185,226,139,.18);border-color:rgba(185,226,139,.38)}
+.quick-list{display:grid;gap:10px}
+.quick-item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:12px;cursor:pointer}
+.quick-item strong{display:block;font-size:1rem}
+.quick-item span{color:var(--muted);font-size:.86rem}
+.star-btn{background:rgba(241,208,107,.13);border:1px solid rgba(241,208,107,.28);color:#ffe19a}
+.star-btn.active{background:#f1d06b;color:#080b08}
+.category-results{display:grid;gap:10px;margin-top:14px}
+.cat-location{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:12px;cursor:pointer}
+.cat-location strong{display:block;font-size:1rem}
+.cat-location span{color:var(--muted);font-size:.86rem}
+@media(max-width:680px){.category-grid{grid-template-columns:1fr}}
+.score-wrap{display:grid;grid-template-columns:135px 1fr;gap:16px;align-items:center}
+.bigscore{height:122px;border-radius:28px;background:linear-gradient(145deg,#173625,#10221a);display:flex;align-items:center;justify-content:center;font-size:3.6rem;font-weight:950;border:1px solid rgba(185,226,139,.18)}
+.score-title{font-size:clamp(1.7rem,6vw,2.8rem);line-height:1.05;font-weight:950;margin:0 0 8px}
+.location-head h2{font-size:clamp(2rem,8vw,3.65rem);line-height:1;margin:0 0 16px;font-weight:950;letter-spacing:-.05em}
+.pill,.chip{display:inline-block;background:rgba(255,255,255,.08);border-radius:999px;padding:9px 13px;color:var(--muted);font-weight:850;margin:0 7px 9px 0}
+.chip{background:var(--soft);border:1px solid rgba(185,226,139,.22);color:var(--accent)}
+.chip.tier1{background:rgba(241,208,107,.12);border-color:rgba(241,208,107,.25);color:#ffe19a}
+.chip.future{background:rgba(170,170,255,.10);border-color:rgba(170,170,255,.22);color:#d3d5ff}
+.info{background:rgba(255,255,255,.035);border-radius:21px;padding:17px;margin:11px 0}
+.info h3{margin:0 0 10px;color:var(--accent);font-size:1.08rem}
+.info p{margin:0;color:var(--muted)}
+.hero-slot{height:210px;border:1px dashed rgba(185,226,139,.38);background:rgba(185,226,139,.06);border-radius:22px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);margin-bottom:14px;overflow:hidden}
+.hero-slot img{width:100%;height:100%;object-fit:cover}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.gallery-tile{height:90px;border:1px dashed rgba(255,255,255,.18);border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:.82rem;background:rgba(255,255,255,.035);overflow:hidden}
+.gallery-tile img{width:100%;height:100%;object-fit:cover}
+.item{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:13px;cursor:pointer}
+.empty-state{background:rgba(255,255,255,.035);border:1px dashed rgba(185,226,139,.22);border-radius:20px;padding:18px;color:var(--muted);font-weight:800}
+.note-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.saved{color:var(--accent);font-weight:850}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:rgba(185,226,139,.08);border:1px solid rgba(185,226,139,.15);border-radius:17px;padding:12px}
+.stat b{display:block;font-size:1.16rem;color:var(--accent)}
+@media(max-width:680px){
+  body{padding:16px}.hero,.card{padding:18px;border-radius:23px}.grid2,.grid3,.stats{grid-template-columns:1fr}.score-wrap{grid-template-columns:1fr 1.2fr}.bigscore{height:116px;font-size:3.35rem}.best{grid-template-columns:30px 1fr 52px}.gallery{grid-template-columns:1fr 1fr}
+}
+
+.search-results-box{display:grid;gap:10px;margin-top:14px}
+.search-hit{background:rgba(185,226,139,.10);border:1px solid rgba(185,226,139,.24);border-radius:16px;padding:13px;cursor:pointer}
+.search-hit strong{display:block;color:#f4f6ed;font-size:1rem;margin-bottom:4px}
+.search-hit span{color:var(--muted);font-size:.88rem}
+
+
+.target-slot{height:180px;border:1px dashed rgba(241,208,107,.42);background:rgba(241,208,107,.07);border-radius:22px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);margin:12px 0 14px;overflow:hidden}
+.target-slot img{width:100%;height:100%;object-fit:cover}
+.target-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:680px){.target-meta{grid-template-columns:1fr}}
+
+
+.tag-groups{display:grid;gap:16px}
+.tag-group{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:18px;padding:14px}
+.tag-group h3{margin:0 0 10px;color:var(--accent);font-size:1.02rem}
+.tag-checks{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.tag-check{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;color:var(--muted);font-weight:800}
+.tag-check input{width:auto;accent-color:#b9e28b}
+.season-pill{background:rgba(241,208,107,.12);border-color:rgba(241,208,107,.26);color:#ffe19a}
+@media(max-width:680px){.tag-checks{grid-template-columns:1fr}}
+
+
+/* v4.6 reliable tab shell */
+.app{padding-bottom:118px}
+.pf-tab-section{display:none}
+body[data-pf-page="overview"] .pf-page-overview{display:block}
+body[data-pf-page="planning"] .pf-page-planning{display:block}
+body[data-pf-page="compositions"] .pf-page-compositions{display:block}
+body[data-pf-page="notes"] .pf-page-notes{display:block}
+body[data-pf-page="categories"] .pf-page-categories{display:block}
+body[data-pf-page="search"] .pf-page-search{display:block}
+
+.bottom-nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:99999;
+  background:rgba(5,8,6,.96);backdrop-filter:blur(12px);
+  border-top:1px solid rgba(255,255,255,.12);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+}
+.nav-btn{
+  border:0;background:transparent;color:rgba(244,246,237,.68);
+  font-weight:850;font-size:.72rem;padding:8px 4px;border-radius:14px;
+  display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:center;
+}
+.nav-btn span{font-size:1.25rem;line-height:1}
+.nav-btn.active{background:rgba(185,226,139,.14);color:#b9e28b}
+.search-results-box{display:grid;gap:10px;margin-top:14px}
+.search-hit{background:rgba(185,226,139,.10);border:1px solid rgba(185,226,139,.24);border-radius:16px;padding:13px;cursor:pointer}
+.search-hit strong{display:block;color:#f4f6ed;font-size:1rem;margin-bottom:4px}
+.search-hit span{color:var(--muted);font-size:.88rem}
+@media(min-width:760px){
+  .bottom-nav{max-width:880px;left:50%;transform:translateX(-50%);border:1px solid rgba(255,255,255,.12);border-bottom:0;border-radius:24px 24px 0 0}
+}
+
+
+/* v5.0 composition gallery */
+.comp-list{display:grid;gap:14px;margin-top:14px}
+.comp-card{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:20px;padding:14px}
+.comp-title-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.comp-title-row strong{color:var(--accent);font-size:1.04rem}
+.comp-img{height:160px;border:1px dashed rgba(241,208,107,.38);background:rgba(241,208,107,.06);border-radius:18px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);overflow:hidden;margin:10px 0}
+.comp-img img{width:100%;height:100%;object-fit:cover}
+.comp-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.comp-actions button{padding:9px 12px;font-size:.84rem}
+.comp-empty{background:rgba(255,255,255,.035);border:1px dashed rgba(185,226,139,.22);border-radius:18px;padding:16px;color:var(--muted);font-weight:800}
+.comp-small{color:var(--muted);font-size:.86rem;margin-top:4px}
+
+
+/* v5.1 ratings and progress */
+.rating-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.rating-badge{font-size:1rem;color:#ffd978;font-weight:900;letter-spacing:.03em}
+.progress-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(185,226,139,.12);border:1px solid rgba(185,226,139,.25);border-radius:999px;padding:7px 11px;color:var(--accent);font-weight:900}
+.comp-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.comp-stat{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:12px}
+.comp-stat strong{display:block;font-size:1.25rem;color:var(--accent)}
+.comp-stat span{display:block;color:var(--muted);font-size:.82rem;margin-top:2px}
+@media(max-width:680px){.rating-row,.comp-summary{grid-template-columns:1fr}}
+
+
+
+
+/* v8.5 location manager */
+.loc-manager-list{display:grid;gap:10px;margin-top:14px}
+.loc-manager-item{padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.loc-manager-item strong{display:block;color:var(--accent);font-size:1.05rem}
+.loc-manager-item span{display:block;color:var(--muted);font-weight:800;margin-top:4px}
+.loc-manager-item button{padding:10px 12px;font-size:.85rem;white-space:nowrap}
+.loc-manager-help{margin-top:10px;color:var(--muted);font-weight:800;line-height:1.5}
+
+/* v5.2 backup / import */
+.backup-warning{background:rgba(241,208,107,.08);border:1px solid rgba(241,208,107,.22);border-radius:18px;padding:14px;color:var(--muted);font-weight:800;margin-bottom:14px}
+.backup-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.backup-actions button{font-size:.9rem}
+
+
+/* v5.2 clean overview pass */
+.location-head .info h3{letter-spacing:.01em}
+
+
+/* v5.5 quality of life */
+.comp-list{
+  display:flex !important;
+  overflow-x:auto;
+  gap:16px;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  padding:6px 2px 14px;
+}
+.comp-card{
+  min-width:100%;
+  scroll-snap-align:start;
+  box-sizing:border-box;
+}
+.comp-list::-webkit-scrollbar{height:7px}
+.comp-list::-webkit-scrollbar-thumb{background:rgba(185,226,139,.25);border-radius:999px}
+.comp-actions{display:flex;gap:10px;flex-wrap:wrap}
+.comp-count-hint{color:var(--muted);font-weight:800;margin:4px 0 10px}
+
+
+/* v5.6 edit/duplicate compositions */
+.comp-tech{
+  margin-top:12px;
+  padding:12px;
+  border-radius:14px;
+  background:rgba(185,226,139,.06);
+  border:1px solid rgba(185,226,139,.15);
+  color:var(--muted);
+  font-weight:800;
+  line-height:1.45;
+}
+
+
+/* v6.2 location refresh fix */
+.comp-location-badge{
+  display:inline-block;
+  margin:6px 0 10px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  color:var(--muted);
+  font-weight:850;
+  font-size:.86rem;
+}
+
+
+/* v6.4 composition navigation polish */
+.comp-nav-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:8px 0 14px;
+  padding:10px 12px;
+  border-radius:18px;
+  background:rgba(185,226,139,.07);
+  border:1px solid rgba(185,226,139,.18);
+}
+.comp-nav-header strong{
+  color:var(--accent);
+  font-size:1rem;
+}
+.comp-nav-header span{
+  color:var(--muted);
+  font-weight:800;
+}
+.comp-thumb-row{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding:4px 0 12px;
+  margin-bottom:10px;
+  -webkit-overflow-scrolling:touch;
+}
+.comp-thumb{
+  flex:0 0 auto;
+  min-width:96px;
+  max-width:120px;
+  padding:8px 10px;
+  border-radius:16px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.12);
+  color:var(--muted);
+  font-weight:850;
+  font-size:.78rem;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.comp-thumb.active{
+  background:rgba(185,226,139,.15);
+  border-color:rgba(185,226,139,.42);
+  color:var(--accent);
+}
+.comp-card{
+  position:relative;
+}
+.comp-index-pill{
+  display:inline-block;
+  margin:0 0 10px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(185,226,139,.1);
+  border:1px solid rgba(185,226,139,.25);
+  color:var(--accent);
+  font-weight:900;
+  font-size:.82rem;
+}
+
+
+/* v6.9 weather refresh test */
+.weather-card{
+  margin-top:18px;
+  padding:18px;
+  border-radius:24px;
+  background:rgba(255,255,255,.035);
+  border:1px solid var(--line);
+}
+.weather-status{
+  color:var(--muted);
+  font-weight:850;
+  margin:6px 0 12px;
+}
+.weather-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.weather-metric{
+  padding:13px 14px;
+  border-radius:18px;
+  background:rgba(0,0,0,.16);
+  border:1px solid rgba(255,255,255,.08);
+}
+.weather-metric span{
+  display:block;
+  color:var(--muted);
+  font-size:.82rem;
+  font-weight:800;
+  margin-bottom:5px;
+}
+.weather-metric strong{
+  display:block;
+  color:var(--accent);
+  font-size:1.12rem;
+  font-weight:950;
+}
+
+
+/* v7.0 weather polish */
+.photo-weather-panel{
+  margin-top:16px;
+  padding:14px;
+  border-radius:20px;
+  background:rgba(185,226,139,.055);
+  border:1px solid rgba(185,226,139,.16);
+}
+.photo-weather-summary{
+  color:var(--muted);
+  font-weight:800;
+  line-height:1.45;
+}
+.photo-weather-line{
+  display:block;
+  margin:5px 0;
+}
+.weather-status{
+  font-size:.95rem;
+}
+
+
+/* v7.3 compact light times */
+.light-times-panel{
+  margin-top:14px;
+}
+.light-times-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.light-times-grid .weather-metric strong{
+  font-size:.98rem;
+  line-height:1.25;
+}
+.light-times-grid .weather-metric span{
+  line-height:1.2;
+}
+
+
+/* v7.5 composition cards first */
+.composition-saved-first{
+  margin-top:14px;
+  margin-bottom:22px;
+}
+.composition-form-start{
+  margin-top:10px;
+  margin-bottom:12px;
+}
+.small-section-title{
+  font-size:.84rem;
+  margin-bottom:10px;
+  opacity:.92;
+}
+
+
+/* v7.6 location snapshot */
+.location-snapshot{
+  display:block;
+  padding:18px;
+}
+.location-snapshot .section-title{
+  margin-bottom:12px;
+}
+.snapshot-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:12px;
+}
+.snapshot-meta{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:12px;
+}
+.snapshot-meta div{
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;
+  padding:11px 12px;
+}
+.snapshot-meta strong,
+.snapshot-conditions strong{
+  display:block;
+  color:var(--muted);
+  font-size:.78rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:7px;
+}
+.snapshot-meta span{
+  color:var(--text);
+  font-weight:850;
+}
+.snapshot-conditions div{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+
+/* v7.8 tomorrow forecast planner */
+.tomorrow-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+}
+.tomorrow-main-card{
+  margin-bottom:12px;
+}
+.tom-score{
+  display:block;
+  color:var(--accent);
+  font-size:2.1rem;
+  font-weight:950;
+  margin:8px 0 4px;
+}
+.tom-card .small{
+  line-height:1.35;
+}
+
+
+/* v7.9 split compositions tab */
+.bottom-nav .nav-btn{
+  font-size:.72rem;
+}
+.bottom-nav .nav-btn span{
+  font-size:1.18rem;
+}
+
+
+/* v8.1 live best bets tomorrow */
+.live-rank-card{
+  display:grid;
+  grid-template-columns:44px 1fr auto;
+  gap:12px;
+  align-items:center;
+}
+.live-rank-card .rank-num{
+  color:#f6d463;
+  font-weight:950;
+  font-size:1.3rem;
+}
+.live-rank-card .score-pill{
+  color:var(--accent);
+  font-weight:950;
+  font-size:1.35rem;
+}
+.live-rank-card h3{
+  margin:0 0 4px;
+}
+.live-rank-card p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.35;
+}
+
+
+/* v8.2 Best Right Now */
+.best-now-item{
+  display:grid;
+  grid-template-columns:28px 1fr auto;
+  gap:10px;
+  align-items:center;
+}
+.best-now-rank{
+  color:#f6d463;
+  font-weight:950;
+}
+.best-now-score{
+  color:var(--accent);
+  font-weight:950;
+}
+.best-now-meta{
+  display:block;
+  color:var(--muted);
+  font-size:.9rem;
+  margin-top:3px;
+}
+
+</style>
+</head>
+<body data-pf-page="overview">
+<div class="app">
+  <section class="pf-tab-section pf-page-overview hero">
+    <h1>PhotoForecast</h1>
+  </section>
+
+  
+  <section class="pf-tab-section pf-page-search card">
+    <div class="section-title">Quick Search</div>
+    <input id="locationSearch" type="text" placeholder="Search locations, regions, categories..." />
+    <div id="searchResults" class="search-results-box"></div>
+  </section>
+
+<section class="pf-tab-section pf-page-overview card">
+    <div class="section-title">Choose Location</div>
+    <div class="grid3">
+      <div><label>Region</label><select id="regionSelect"></select></div>
+      <div><label>Tier</label><select id="tierSelect"><option>Tier 1</option><option>Tier 2</option><option>Tier 3</option><option>Seasonal</option><option>Future Exploration</option></select></div>
+      <div><label>Location</label><select id="locationSelect"></select></div>
+    </div>
+  </section>
+
+  <section class="pf-tab-section pf-page-overview card location-head">
+    <div class="section-title">Location Overview</div>
+    <h2 id="locName">Location</h2>
+    <div><span class="pill" id="regionPill"></span><span class="pill" id="tierPill"></span><span class="pill" id="drivePill"></span></div>
+
+    <div class="hero-slot" id="heroSlot">Hero image placeholder<br>Tomorrow: add your photo here</div>
+    <div class="note-row">
+      <input id="heroInput" type="file" accept="image/*" style="display:none">
+      <button class="primary" onclick="document.getElementById('heroInput').click()">Add / Change Hero Image</button>
+      <button onclick="clearHero()">Clear Hero</button>
+      <button onclick="clearAllHeroImages()">Clear All Hero Images</button>
+      <button id="favButton" class="star-btn" onclick="toggleFavourite()">☆ Add Favourite</button>
+      <span class="saved" id="heroSaved"></span>
+    </div>
+
+    <div id="locationDetails"></div>
+
+    <div class="weather-card" id="liveWeatherCard">
+      <div class="section-title">Live Weather</div>
+      <div class="weather-status" id="weatherStatus">Weather waiting for location.</div>
+      <button class="secondary" id="weatherRefreshBtn" type="button" onclick="loadLiveWeatherForSelectedLocation(true)">Refresh Weather</button>
+      <div class="weather-grid" id="weatherGrid">
+        <div class="weather-metric"><span>Temperature</span><strong id="weatherTemp">—</strong></div>
+        <div class="weather-metric"><span>Cloud Cover</span><strong id="weatherCloud">—</strong></div>
+        <div class="weather-metric"><span>Wind Speed</span><strong id="weatherWindSpeed">—</strong></div>
+        <div class="weather-metric"><span>Wind Direction</span><strong id="weatherWindDir">—</strong></div>
+        <div class="weather-metric"><span>Rain Probability</span><strong id="weatherRain">—</strong></div>
+        <div class="weather-metric"><span>Visibility</span><strong id="weatherVisibility">—</strong></div>
+        <div class="weather-metric"><span>Sunrise</span><strong id="weatherSunrise">—</strong></div>
+        <div class="weather-metric"><span>Sunset</span><strong id="weatherSunset">—</strong></div>
+      </div>
+      <div class="light-times-panel">
+        <div class="section-title">Sun & Light Times</div>
+        <div class="light-times-grid">
+          <div class="weather-metric"><span>Morning Golden</span><strong id="weatherMorningGolden">—</strong></div>
+          <div class="weather-metric"><span>Evening Golden</span><strong id="weatherEveningGolden">—</strong></div>
+          <div class="weather-metric"><span>Morning Blue</span><strong id="weatherMorningBlue">—</strong></div>
+          <div class="weather-metric"><span>Evening Blue</span><strong id="weatherEveningBlue">—</strong></div>
+        </div>
+      </div>
+      <div class="photo-weather-panel">
+        <div class="section-title">Photography Conditions</div>
+        <div id="photoWeatherSummary" class="photo-weather-summary">Waiting for weather data.</div>
+      </div>
+    </div>
+
+  </section>
+
+
+  
+<section class="pf-tab-section pf-page-compositions hero">
+  <h1>Compositions</h1>
+</section>
+<section class="pf-tab-section pf-page-compositions card">
+    <div class="section-title">Composition Gallery</div>
+    <p class="small">Use this for different compositions at the same location — not just finished photos. Add a reference image, title and notes for each idea.</p>
+
+    <div class="composition-saved-first">
+      <div class="section-title small-section-title">Saved Compositions</div>
+      <div class="comp-summary" id="compositionSummary"></div>
+      <div class="comp-list" id="compositionList"></div>
+    </div>
+
+    <div class="composition-form-start">
+      <div class="section-title small-section-title">Add / Edit Composition</div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <label>Composition name</label>
+        <input id="compName" placeholder="Example: Pulpit Rock long exposure">
+      </div>
+      <div>
+        <label>Progress</label>
+        <select id="compStatus">
+          <option>🔴 Planned</option>
+          <option>🟠 Attempted</option>
+          <option>🟡 Good</option>
+          <option>🟢 Nailed It</option>
+          <option>🏆 Portfolio Shot</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="rating-row">
+      <div>
+        <label>Composition rating</label>
+        <select id="compRating">
+          <option value="1">⭐</option>
+          <option value="2">⭐⭐</option>
+          <option value="3">⭐⭐⭐</option>
+          <option value="4" selected>⭐⭐⭐⭐</option>
+          <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+      </div>
+      <div>
+        <label>Priority meaning</label>
+        <div class="comp-small">1 = record only · 5 = portfolio/bucket-list potential</div>
+      </div>
+    </div>
+
+    
+<div class="rating-row">
+<div>
+<label>Lens</label>
+<input id="compLens" placeholder="RF 24-105mm f/4L">
+</div>
+<div>
+<label>Focal Length</label>
+<input id="compFocal" placeholder="24mm">
+</div>
+</div>
+
+<div class="rating-row">
+<div>
+<label>Aperture</label>
+<input id="compAperture" placeholder="f/11">
+</div>
+<div>
+<label>Shutter / ISO</label>
+<input id="compExposure" placeholder="1.5 sec • ISO 100">
+</div>
+</div>
+
+<label style="margin-top:14px">Lessons Learned</label>
+<textarea id="compLessons" placeholder="What worked? What didn't?"></textarea>
+
+<label style="margin-top:14px">Improvement Targets</label>
+<textarea id="compImprove" placeholder="What will make this a 5-star image?"></textarea>
+
+<label style="margin-top:14px">Potential Rating</label>
+<select id="compPotential">
+<option value="3">⭐⭐⭐</option>
+<option value="4">⭐⭐⭐⭐</option>
+<option value="5" selected>⭐⭐⭐⭐⭐</option>
+</select>
+
+<label style="margin-top:14px">Composition notes</label>
+    <textarea id="compNotes" placeholder="Lens, best light, season, tide, drone angle, access notes, what you are trying to improve..."></textarea>
+
+    <div class="note-row">
+      <input id="compInput" type="file" accept="image/*" style="display:none">
+      <button onclick="document.getElementById('compInput').click()">Choose Image</button>
+      <button id="compSaveBtn" class="primary" onclick="saveComposition()">Save Composition</button>
+      <button onclick="clearCompositionForm()">Clear Form</button>
+      <button onclick="clearCurrentLocationCompositionsOnly()">Clear This Location</button>
+      <button onclick="clearAllCompositionCardsOnly()">Clear All Compositions</button>
+      <span class="saved" id="compSaved"></span>
+    </div>
+
+    <div class="comp-img" id="compPreview">Optional composition image / screenshot preview</div>
+  </section>
+
+
+
+  
+
+<section class="pf-tab-section pf-page-compositions card">
+    <div class="section-title">Target Shot</div>
+    <p class="small">Use this for the image you are still chasing at this location. It can be your own idea or an inspiration screenshot.</p>
+
+    <label>Target shot description</label>
+    <textarea id="targetDescription" placeholder="Example: Winter fog around the ruins at sunrise, with soft side light and a lone figure for scale."></textarea>
+
+    <div class="target-meta">
+      <div>
+        <label>Priority</label>
+        <select id="targetPriority">
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
+        </select>
+      </div>
+      <div>
+        <label>Status</label>
+        <select id="targetStatus">
+          <option>Not Attempted</option>
+          <option>Attempted</option>
+          <option>Achieved</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="target-slot" id="targetSlot">Target inspiration image placeholder<br>Add screenshot or reference photo here</div>
+
+    <div class="note-row">
+      <input id="targetInput" type="file" accept="image/*" style="display:none">
+      <button class="primary" onclick="document.getElementById('targetInput').click()">Add Target Image</button>
+      <button onclick="clearTargetImage()">Clear Target Image</button>
+      <button class="primary" onclick="saveTargetShot()">Save Target Shot</button>
+      <span class="saved" id="targetSaved"></span>
+    </div>
+  </section>
+
+
+  
+
+<section class="pf-tab-section pf-page-planning card">
+    <div class="section-title">Best Bets Today</div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div><label>Time of day</label><select id="dashTime"><option>Sunrise</option><option>Morning</option><option>Midday</option><option>Afternoon</option><option>Sunset</option><option>Blue Hour</option><option>Night / Astro</option></select></div>
+      <div><label>Drive commitment</label><select id="dashRange"><option value="999">Any distance</option><option value="30">Local escape · under 30 mins</option><option value="60">Quick morning · 30–60 mins</option><option value="90">Half-day adventure · 60–90 mins</option><option value="120">Big morning · 90–120 mins</option><option value="9999">Full-day mission · 120+ mins</option></select></div>
+    </div>
+    <div id="dashboard" class="dashboard"></div>
+  </section>
+
+  
+
+<section class="pf-tab-section pf-page-planning card">
+    <div class="section-title">Tomorrow Planner</div>
+    <div class="tomorrow">
+      <div class="tom-card tomorrow-main-card">
+        <strong id="tomorrowHeadline">Tomorrow forecast waiting for weather.</strong>
+        <span class="small" id="tomorrowSummary">Select a location to load tomorrow's photography forecast.</span>
+      </div>
+      <div class="tomorrow-grid">
+        <div class="tom-card">
+          <strong>Tomorrow Sunrise</strong>
+          <span class="tom-score" id="tomSunriseScore">—</span>
+          <span class="small" id="tomSunriseText">Waiting for forecast.</span>
+        </div>
+        <div class="tom-card">
+          <strong>Tomorrow Sunset</strong>
+          <span class="tom-score" id="tomSunsetScore">—</span>
+          <span class="small" id="tomSunsetText">Waiting for forecast.</span>
+        </div>
+        <div class="tom-card">
+          <strong>Fog Chance</strong>
+          <span class="tom-score" id="tomFogScore">—</span>
+          <span class="small" id="tomFogText">Waiting for forecast.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+
+
+<section class="pf-tab-section pf-page-planning card">
+  <div class="section-title">Live Best Bets Tomorrow</div>
+  <p class="small">Ranks your known locations using tomorrow's live forecast. This first version checks sunrise and sunset potential.</p>
+  <div class="grid2" style="margin-bottom:14px">
+    <div>
+      <label>Best bet time</label>
+      <select id="liveBestTomorrowMode" onchange="loadLiveBestBetsTomorrow()">
+        <option value="sunrise">Tomorrow Sunrise</option>
+        <option value="sunset">Tomorrow Sunset</option>
+        <option value="overall">Best Overall</option>
+      </select>
+    </div>
+    <div>
+      <label>Drive commitment</label>
+      <select id="liveBestTomorrowDrive" onchange="loadLiveBestBetsTomorrow()">
+        <option value="9999">Any distance</option>
+        <option value="45">Up to 45 mins</option>
+        <option value="75">Up to 75 mins</option>
+        <option value="120">Up to 2 hours</option>
+      </select>
+    </div>
+  </div>
+  <button class="primary" onclick="loadLiveBestBetsTomorrow()">Refresh Tomorrow Rankings</button>
+  <div id="liveBestTomorrowStatus" class="small" style="margin-top:12px">Waiting to load rankings.</div>
+  <div id="liveBestTomorrowResults" class="dashboard"></div>
+</section>
+
+<section class="pf-tab-section pf-page-planning card">
+    <div class="section-title">Parking</div>
+    <div class="grid2">
+      <div><label>Postcode</label><input id="parkingPostcode"></div>
+      <div><label>What3Words</label><input id="w3wText" placeholder="///example.words.here"></div>
+    </div>
+    <label style="margin-top:14px">Parking notes</label>
+    <textarea id="parkingNotes"></textarea>
+    <div class="note-row">
+      <button class="primary" onclick="saveParking()">Save parking</button>
+      <a id="mapLink" class="maplink" target="_blank">Open in Google Maps</a>
+      <span class="saved" id="parkingSaved"></span>
+    </div>
+  </section>
+
+  
+
+<section class="pf-tab-section pf-page-planning card">
+    <div class="section-title">Conditions & Seasons</div>
+    <p class="small">Optional tags for seasons, weather patterns and the kind of shot this location suits.</p>
+
+    <div class="tag-groups" id="opportunityTagGroups"></div>
+
+    <div class="note-row">
+      <button class="primary" onclick="saveOpportunityTags()">Save Tags</button>
+      <button onclick="resetOpportunityTags()">Reset Tags</button>
+      <span class="saved" id="tagSaved"></span>
+    </div>
+  </section>
+
+
+
+
+
+  
+
+<section class="pf-tab-section pf-page-overview card">
+    <div class="score-wrap">
+      <div class="bigscore" id="scoreBox">8.5</div>
+      <div><div class="section-title" style="margin-bottom:8px">Location Score</div><div class="score-title" id="scoreTitle">Worth checking conditions.</div><p class="small" id="scoreCopy">Not guaranteed, but worth a serious look.</p></div>
+    </div>
+  </section>
+
+
+  <section class="pf-tab-section pf-page-overview card">
+    <div class="section-title">Quick Access</div>
+    <div>
+      <h3 style="margin:0 0 10px;color:var(--accent)">⭐ Favourites</h3>
+      <div id="favouritesList" class="quick-list"></div>
+    </div>
+  </section>
+
+
+
+
+  <section class="pf-tab-section pf-page-categories card">
+    <div class="section-title">Category Browser</div>
+    <p class="small">Use this when you know the type of shoot you want, rather than the exact place. It uses each location's saved category/status from the Field System.</p>
+    <div class="category-grid" id="categoryBrowser"></div>
+    <div class="category-results" id="categoryResults"></div>
+  </section>
+
+  <section class="pf-tab-section pf-page-categories card">
+    <div class="section-title">Add / Edit Location</div>
+    <p class="small">Use this for places you discover later, or edit custom locations you have already added. Saved custom locations appear in the main Region / Tier / Location selectors and are included in PhotoForecast backups.</p>
+
+    <div class="grid2">
+      <div><label>Location name</label><input id="customLocName" placeholder="The Dutch Barn"></div>
+      <div><label>Region</label><input id="customLocRegion" placeholder="Wiltshire"></div>
+    </div>
+
+    <div class="grid2" style="margin-top:14px">
+      <div><label>Tier</label><select id="customLocTier"><option>Tier 1</option><option selected>Tier 2</option><option>Tier 3</option><option>Seasonal</option><option>Future Exploration</option></select></div>
+      <div><label>Drive time from Blackwater</label><input id="customLocDrive" type="number" placeholder="80"></div>
+    </div>
+
+    <div class="grid2" style="margin-top:14px">
+      <div><label>Area</label><input id="customLocArea" placeholder="Marlborough Downs / Wiltshire"></div>
+      <div><label>Base score</label><input id="customLocScore" type="number" step="0.1" min="1" max="10" placeholder="8.0"></div>
+    </div>
+
+    <div class="grid2" style="margin-top:14px">
+      <div><label>Postcode</label><input id="customLocPostcode" placeholder="Optional"></div>
+      <div><label>What3Words</label><input id="customLocW3W" placeholder="///optional.words.here"></div>
+    </div>
+
+    <div class="grid2" style="margin-top:14px">
+      <div><label>Latitude</label><input id="customLocLat" type="number" step="0.000001" placeholder="50.958672"></div>
+      <div><label>Longitude</label><input id="customLocLon" type="number" step="0.000001" placeholder="-1.970483"></div>
+    </div>
+
+    <label style="margin-top:14px">Photography DNA / tags</label>
+    <input id="customLocDNA" placeholder="Barn, Telephoto, Rapeseed, Storm light, Rural">
+
+    <label style="margin-top:14px">Works best</label>
+    <input id="customLocWorksBest" placeholder="Rapeseed, Side light, Storm clouds, Spring">
+
+    <label style="margin-top:14px">Parking / access notes</label>
+    <textarea id="customLocParking" placeholder="Where to park, road notes, gate/footpath access, safety notes..."></textarea>
+
+    <label style="margin-top:14px">Location notes</label>
+    <textarea id="customLocNotes" placeholder="What this location is for, best compositions, lens ideas..."></textarea>
+
+    <div class="note-row">
+      <button id="customLocSaveBtn" class="primary" onclick="saveCustomLocation()">Save New Location</button>
+      <button id="customLocCancelEditBtn" onclick="cancelCustomLocationEdit()" style="display:none">Cancel Edit</button>
+      <button onclick="clearCustomLocationForm()">Clear Form</button>
+      <span class="saved" id="customLocSaved"></span>
+    </div>
+    <p class="loc-manager-help">Tip: save the location first, then go to Overview / Notes / Comps and add its hero image, personal notes and composition cards as normal.</p>
+  </section>
+
+  <section class="pf-tab-section pf-page-categories card">
+    <div class="section-title">Custom Locations</div>
+    <p class="small">Locations added inside the app. These are stored in your PhotoForecast backup.</p>
+    <div id="customLocationList" class="loc-manager-list"></div>
+  </section>
+
+  <section class="pf-tab-section pf-page-categories card">
+    <div class="section-title">Region Tools</div>
+    <p class="small">Use this to tidy duplicate region names, for example changing a custom location from Surrey &amp; Hampshire into Surrey.</p>
+    <div class="grid2">
+      <div><label>Current region name</label><input id="regionRenameFrom" placeholder="Surrey & Hampshire"></div>
+      <div><label>New region name</label><input id="regionRenameTo" placeholder="Surrey"></div>
+    </div>
+    <div class="note-row">
+      <button class="primary" onclick="renameCustomRegion()">Rename Custom Region</button>
+      <span class="saved" id="regionRenameSaved"></span>
+    </div>
+    <p class="loc-manager-help">This only changes custom locations you added inside Location Manager. Built-in locations are left alone.</p>
+  </section>
+
+
+
+  <section class="pf-tab-section pf-page-notes card">
+    <div class="section-title">Field System</div>
+    <div class="grid2">
+      <div>
+        <label>Category</label>
+        <select id="categorySelect">
+          <option>Locations</option>
+          <option>Bluebells & Wild Garlic</option>
+          <option>Deer & Wildlife</option>
+          <option>Lone Trees</option>
+          <option>Tree Tunnels</option>
+          <option>Churches & Ruins</option>
+          <option>Coast</option>
+          <option>Hills & Views</option>
+          <option>Future Scouting</option>
+          <option>Portfolio Locations</option>
+        </select>
+      </div>
+      <div>
+        <label>Status</label>
+        <select id="statusSelect">
+          <option>🔴 Not Visited</option>
+          <option>🟡 Scouted</option>
+          <option>🟢 Proven</option>
+          <option>⭐ Portfolio Location</option>
+        </select>
+      </div>
+    </div>
+    <div class="note-row">
+      <button class="primary" onclick="saveFieldSystem()">Save Category / Status</button>
+      <span class="saved" id="fieldSaved"></span>
+    </div>
+  </section>
+
+
+
+
+
+  <section class="pf-tab-section pf-page-notes card" style="display:none">
+    <div class="section-title">Gallery</div>
+    <div class="small">Gallery disabled in v1.8 to prioritise one strong hero image per destination.</div>
+  </section>
+
+  <section class="pf-tab-section pf-page-notes card">
+    <div class="section-title">Next Visit Checklist</div>
+    <p class="small">Use this when you are actually on location. Tick off what you capture, then the app becomes more accurate every visit.</p>
+    <div class="checklist" id="nextVisitChecklist"></div>
+    <div class="note-row">
+      <button class="primary" onclick="saveChecklist()">Save checklist</button>
+      <button onclick="resetChecklist()">Reset checklist</button>
+      <span class="saved" id="checkSaved"></span>
+    </div>
+  </section>
+
+  <section class="pf-tab-section pf-page-notes card">
+    <div class="section-title">Personal Notes</div>
+    <textarea id="personalNotes" placeholder="Tomorrow: add your notes, best viewpoints, mistakes, drone launch ideas, lens choices..."></textarea>
+    <div class="note-row"><button class="primary" onclick="saveNotes()">Save notes</button><span class="saved" id="notesSaved"></span></div>
+  </section>
+
+
+  <section class="pf-tab-section pf-page-notes card">
+    <div class="section-title">Backup / Transfer</div>
+    <div class="backup-warning">
+      Use this before changing to a new version. Export creates a backup file of your notes, parking, target shots, hero images and compositions. Import restores them into a newer build.
+    </div>
+
+    <div class="backup-actions">
+      <button class="primary" onclick="exportPhotoForecastBackup()">Export Backup</button>
+      <input id="backupImportInput" type="file" accept=".json,application/json" style="display:none">
+      <button onclick="document.getElementById('backupImportInput').click()">Import Backup</button>
+      <button onclick="pfRepairCompositionDataAfterImport()">Repair Composition Display</button>
+      <button class="danger" onclick="clearPhotoForecastData()">Clear All Saved Data</button>
+      <span class="saved" id="backupStatus"></span>
+    </div>
+  </section>
+
+
+  <section class="pf-tab-section pf-page-notes card">
+    <div class="section-title">Visit Log</div>
+    <div class="stats" id="visitStats"></div>
+    <div class="grid2"><div><label>Date</label><input type="date" id="visitDate"></div><div><label>Success rating</label><select id="visitRating"><option value="5">★★★★★ 5 - Excellent</option><option value="4">★★★★ 4 - Good</option><option value="3">★★★ 3 - Okay</option><option value="2">★★ 2 - Weak</option><option value="1">★ 1 - Waste of fuel</option></select></div></div>
+    <div class="grid2" style="margin-top:14px"><div><label>Conditions</label><input id="visitConditions" placeholder="Fog, inversion, frost..."></div><div><label>Best lens / focal length</label><input id="visitLens" placeholder="100-500mm at 350mm..."></div></div>
+    <label style="margin-top:14px">Visit notes</label><textarea id="visitNotes"></textarea>
+    <div class="note-row"><button class="primary" onclick="saveVisit()">Add visit</button><button onclick="clearVisitForm()">Clear form</button><button class="danger" onclick="clearVisits()">Clear visits</button><span class="saved" id="visitSaved"></span></div>
+    <div id="visitList" style="margin-top:18px"></div>
+  </section>
+</div>
+
+
+<nav class="bottom-nav" aria-label="PhotoForecast navigation">
+  <button class="nav-btn active" data-pf-page="overview" onclick="pfSetPage('overview')"><span>🏠</span>Overview</button>
+  <button class="nav-btn" data-pf-page="planning" onclick="pfSetPage('planning')"><span>🎯</span>Planning</button>
+  <button class="nav-btn" data-pf-page="compositions" onclick="pfSetPage('compositions')"><span>🖼️</span>Comps</button>
+  <button class="nav-btn" data-pf-page="notes" onclick="pfSetPage('notes')"><span>📝</span>Notes</button>
+  <button class="nav-btn" data-pf-page="categories" onclick="pfSetPage('categories')"><span>🗂️</span>Categories</button>
+  
+</nav>
+
+<script>
+
+function pfSetPage(page){
+  document.body.dataset.pfPage = page;
+  document.querySelectorAll(".nav-btn").forEach(btn=>{
+    btn.classList.toggle("active", btn.dataset.pfPage === page);
+  });
+  localStorage.setItem("pf_active_tab", page);
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function pfRestorePage(){
+  pfSetPage(localStorage.getItem("pf_active_tab") || "overview");
+}
+function pfSelectLocationAndOverview(idx){
+  if(typeof locations === "undefined" || !locations[idx]) return;
+  const l = locations[idx];
+  const region = document.getElementById("regionSelect");
+  const tier = document.getElementById("tierSelect");
+  const loc = document.getElementById("locationSelect");
+  if(region) region.value = l.region;
+  if(tier) tier.value = l.tier;
+  if(typeof populateLocations === "function") populateLocations(String(idx));
+  if(loc) loc.value = String(idx);
+  localStorage.setItem("pf_last_region", l.region);
+  localStorage.setItem("pf_last_tier", l.tier);
+  localStorage.setItem("pf_last_location", String(idx));
+  if(typeof render === "function") render();
+  pfSetPage("overview");
+}
+
+const locations = [{"name": "Old Harry Rocks", "region": "Dorset", "tier": "Tier 1", "area": "Purbeck Coast", "dna": ["Coast", "Chalk cliffs", "Sunrise", "Drone", "Long exposure"], "score": 9.5, "driveMin": 125, "parkingPostcode": "BH19 3AU", "w3w": "", "parkingNotes": "Studland / Old Harry Rocks parking. Add exact What3Words tomorrow.", "worksBest": ["Winter sunrise", "Low wind", "Clear visibility", "High tide checked", "Drone-safe wind"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Portland Bill", "region": "Dorset", "tier": "Tier 1", "area": "Portland", "dna": ["Coast", "Lighthouse", "Long exposure", "Drone", "Sea pinks"], "score": 9.0, "driveMin": 140, "parkingPostcode": "DT5 2JT", "w3w": "", "parkingNotes": "Portland Bill parking. Add exact What3Words tomorrow.", "worksBest": ["Sunset", "Blue hour", "Storm swell", "Sea pinks", "Winter light"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Knowlton Church", "region": "Dorset", "tier": "Tier 1", "area": "East Dorset", "dna": ["Historic", "Ruins", "Drone", "Atmosphere", "Minimal"], "score": 9.2, "driveMin": 105, "parkingPostcode": "BH21 5AE", "w3w": "", "parkingNotes": "Knowlton Church parking / lay-by. Add exact What3Words tomorrow.", "worksBest": ["Sunrise", "Mist", "Frost", "Low wind", "Winter"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Colmer's Hill", "region": "Dorset", "tier": "Tier 1", "area": "West Dorset", "dna": ["Telephoto", "Hill shape", "Drone", "Layers", "Autumn"], "score": 9.2, "driveMin": 135, "parkingPostcode": "DT6 6AG", "w3w": "", "parkingNotes": "Colmer's Hill / Symondsbury parking area. Add exact viewpoint What3Words tomorrow.", "worksBest": ["Autumn mist", "Spring mist", "Telephoto light", "Sunrise", "Low wind"], "notes": "Visited/scouted from Chutes Lane with a phone shot only. Needs proper dedicated shoot.", "heroImage": "", "gallery": []}, {"name": "Win Green Hill", "region": "Dorset", "tier": "Tier 1", "area": "Cranborne Chase", "dna": ["Hilltop", "Layers", "Telephoto", "Drone", "Downland"], "score": 9.0, "driveMin": 105, "parkingPostcode": "SP7 0EP", "w3w": "", "parkingNotes": "Win Green Hill parking. Add exact What3Words tomorrow.", "worksBest": ["Valley mist", "Frost", "Cold sunrise", "Side light", "Broken cloud"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Eggardon Hill", "region": "Dorset", "tier": "Tier 1", "area": "West Dorset", "dna": ["Hillfort", "Highland cattle", "Drone", "Ramparts", "Sunset"], "score": 8.8, "driveMin": 130, "parkingPostcode": "DT2 0DS", "w3w": "", "parkingNotes": "Eggardon Hill parking. Add exact What3Words tomorrow.", "worksBest": ["Sunset", "Low side light", "Broken cloud", "Light mist", "Cattle present"], "notes": "John likes this for sunset and possible Highland cattle.", "heroImage": "", "gallery": []}, {"name": "Hambledon Hill", "region": "Dorset", "tier": "Tier 1", "area": "North Dorset", "dna": ["Hillfort", "Ramparts", "Drone", "Telephoto", "Downland"], "score": 8.5, "driveMin": 110, "parkingPostcode": "DT11 8ET", "w3w": "", "parkingNotes": "Hambledon Hill parking. Add exact What3Words tomorrow.", "worksBest": ["Winter side light", "Frost", "Mist", "Low sun", "Drone-safe wind"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Abbotsbury", "region": "Dorset", "tier": "Tier 1", "area": "West Dorset", "dna": ["Chapel", "Chesil Beach", "Fleet Lagoon", "Drone", "Sunset"], "score": 8.5, "driveMin": 145, "parkingPostcode": "DT3 4LA", "w3w": "", "parkingNotes": "Abbotsbury / St Catherine's Chapel / Fleet Lagoon parking. Add exact What3Words tomorrow.", "worksBest": ["Sunset", "Mist over lagoon", "Side light", "Winter light", "Drone-safe wind"], "notes": "", "heroImage": "", "gallery": []}, {"name": "St Aldhelm's Head", "region": "Dorset", "tier": "Tier 1", "area": "Purbeck Coast", "dna": ["Chapel", "Clifftop", "Anvil Rock", "Drone", "Monochrome"], "score": 8.8, "driveMin": 130, "parkingPostcode": "BH19 3LL", "w3w": "", "parkingNotes": "St Aldhelm's Head parking. Add exact What3Words tomorrow.", "worksBest": ["Dramatic cloud", "Sunrise", "Sunset", "Storm light", "Low wind"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Lyme Regis", "region": "Dorset", "tier": "Tier 2", "area": "West Dorset", "dna": ["Harbour", "The Cobb", "Storm waves", "Long exposure", "Coast"], "score": 8.2, "driveMin": 145, "parkingPostcode": "DT7 3JN", "w3w": "", "parkingNotes": "Monmouth Beach / Lyme Regis parking. Add exact What3Words tomorrow.", "worksBest": ["Sunrise", "Blue hour", "High tide checked", "Storm swell", "Harbour lights"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Chapman's Pool", "region": "Dorset", "tier": "Tier 2", "area": "Purbeck Coast", "dna": ["Hidden cove", "Long exposure", "Adventure coast", "Cliffs", "Drone"], "score": 8.0, "driveMin": 130, "parkingPostcode": "BH19 3LL", "w3w": "", "parkingNotes": "Worth Matravers / Chapman's Pool access parking. Add exact What3Words tomorrow.", "worksBest": ["Sunset", "Storm light", "Moderate swell", "Dry paths", "Low wind"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Gold Hill", "region": "Dorset", "tier": "Tier 2", "area": "Shaftesbury", "dna": ["Townscape", "Cobbles", "Historic", "Iconic", "Misty vale"], "score": 8.0, "driveMin": 95, "parkingPostcode": "SP7 8DF", "w3w": "", "parkingNotes": "Shaftesbury / Gold Hill parking. Add exact What3Words tomorrow.", "worksBest": ["Frost", "Empty street", "Morning light", "Autumn fog", "Winter"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Horton Tower", "region": "Dorset", "tier": "Tier 2", "area": "East Dorset", "dna": ["Tower", "Telephoto", "Minimal", "Drone", "Historic"], "score": 7.5, "driveMin": 100, "parkingPostcode": "BH21 7JA", "w3w": "", "parkingNotes": "Horton Tower viewpoint parking. Add exact What3Words tomorrow.", "worksBest": ["Mist", "Dramatic cloud", "Frost", "Telephoto compression", "Low side light"], "notes": "", "heroImage": "", "gallery": []}, {"name": "West Bay", "region": "Dorset", "tier": "Tier 2", "area": "West Dorset", "dna": ["Cliffs", "Harbour", "Coast", "Long exposure", "Sunset"], "score": 7.0, "driveMin": 145, "parkingPostcode": "DT6 4EN", "w3w": "", "parkingNotes": "West Bay harbour / beach parking. Add exact What3Words tomorrow.", "worksBest": ["Low evening sun", "Storm light", "High tide checked", "Breaking waves", "Golden cliffs"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Badbury Rings & Beech Avenue", "region": "Dorset", "tier": "Tier 2", "area": "East Dorset", "dna": ["Beech avenue", "Woodland", "Autumn", "Telephoto", "Mist"], "score": 8.3, "driveMin": 105, "parkingPostcode": "DT11 9JL", "w3w": "", "parkingNotes": "Badbury Rings parking. Add exact What3Words tomorrow.", "worksBest": ["Autumn colour", "Misty morning", "Backlight", "Frost", "Soft overcast"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Sturminster Newton", "region": "Dorset", "tier": "Tier 3", "area": "North Dorset", "dna": ["Mill", "Bridge", "River", "Reflections", "Mist"], "score": 6.5, "driveMin": 115, "parkingPostcode": "DT10 1NW", "w3w": "", "parkingNotes": "Sturminster Newton Mill parking. Add exact What3Words tomorrow.", "worksBest": ["River mist", "Frost", "Still water", "Autumn colour", "Early morning"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Spetisbury / River Stour", "region": "Dorset", "tier": "Tier 3", "area": "North Dorset", "dna": ["River", "Bridge", "Reflections", "Winter", "Mist"], "score": 7.5, "driveMin": 105, "parkingPostcode": "DT11 9DP", "w3w": "", "parkingNotes": "Crawford Bridge / Spetisbury parking. Add exact What3Words tomorrow.", "worksBest": ["River mist", "Frost", "Still water", "Winter sunrise", "Soft morning light"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Wareham", "region": "Dorset", "tier": "Future Exploration", "area": "Purbeck", "dna": ["River", "Boats", "Reflections", "Mist"], "score": 6.0, "driveMin": 110, "parkingPostcode": "BH20 4LP", "w3w": "", "parkingNotes": "Leave out of main planning for now. Add only if revisited.", "worksBest": ["River mist", "Frost", "Still water", "Winter morning"], "notes": "John decided to leave Wareham out for now unless revisited properly.", "heroImage": "", "gallery": []}, {"name": "Wimborne Minster & Eyebridge", "region": "Dorset", "tier": "Future Exploration", "area": "East Dorset", "dna": ["Town", "Bridge", "River", "Mist"], "score": 6.5, "driveMin": 100, "parkingPostcode": "BH21 1EA", "w3w": "", "parkingNotes": "Maybe later. Add exact details only if genuinely planned.", "worksBest": ["Mist", "Frost", "Still reflections", "Winter"], "notes": "Maybe later rather than core database.", "heroImage": "", "gallery": []}, {"name": "St Martha's Church", "region": "Surrey / Hampshire", "tier": "Tier 1", "area": "Surrey Hills", "dna": ["Church", "Drone", "Views", "Sandy path", "Sunset"], "score": 8.4, "driveMin": 35, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add preferred Halfpenny Lane / St Martha's parking tomorrow.", "worksBest": ["Sunset", "Broken cloud", "Clear views", "Light mist", "Drone-safe wind"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Thursley Common", "region": "Surrey / Hampshire", "tier": "Tier 1", "area": "Surrey", "dna": ["Wetland", "Boardwalk", "Birch", "Reeds", "Mist"], "score": 8.0, "driveMin": 30, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add preferred car park and What3Words tomorrow.", "worksBest": ["Mist", "Calm wind", "Frost", "Soft sunrise", "Still pools"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Fleet Pond", "region": "Surrey / Hampshire", "tier": "Tier 2", "area": "Hampshire", "dna": ["Water", "Reflections", "Wildlife", "Reeds", "Mist"], "score": 7.0, "driveMin": 12, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add exact parking tomorrow.", "worksBest": ["Morning mist", "Still water", "Frost", "Soft light", "Wildlife active"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Frensham Great Pond", "region": "Surrey / Hampshire", "tier": "Tier 2", "area": "Surrey", "dna": ["Water", "Reeds", "Sunrise", "Heathland", "Mist"], "score": 7.2, "driveMin": 30, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add preferred parking tomorrow.", "worksBest": ["Mist", "Still water", "Sunrise", "Frost", "Soft light"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Bourne Woods", "region": "Surrey / Hampshire", "tier": "Seasonal", "area": "Surrey", "dna": ["Woodland", "Bluebells", "Pines", "Light shafts", "Spring"], "score": 7.5, "driveMin": 30, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add parking and bluebell access details tomorrow.", "worksBest": ["Bluebells", "Mist", "Soft overcast", "Backlight", "Spring greens"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Waverley Abbey", "region": "Surrey / Hampshire", "tier": "Tier 2", "area": "Surrey", "dna": ["Ruins", "River", "Historic", "Frost", "Mist"], "score": 7.4, "driveMin": 25, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add parking details tomorrow.", "worksBest": ["Frost", "Mist", "Sunrise", "Dramatic sky", "Soft light"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Newlands Corner", "region": "Surrey / Hampshire", "tier": "Tier 1", "area": "Surrey Hills", "dna": ["Views", "Woodland", "Layers", "Sunrise", "Mist"], "score": 8.8, "driveMin": 35, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add parking details tomorrow.", "worksBest": ["Misty valleys", "Sunrise", "Autumn colour", "Side light", "Clear visibility", "Sunset", "Golden light", "Surrey Hills views"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Leith Hill", "region": "Surrey / Hampshire", "tier": "Tier 2", "area": "Surrey Hills", "dna": ["Tower", "Woodland", "Views", "Autumn", "Sunset"], "score": 7.3, "driveMin": 55, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add preferred car park tomorrow.", "worksBest": ["Autumn colour", "Sunset", "Mist in valleys", "Broken cloud", "Clear views"], "notes": "Merged Leith Hill and Leith Hill Tower into one entry.", "heroImage": "", "gallery": []}, {"name": "Martinsell Hill", "region": "Wiltshire", "tier": "Tier 1", "area": "Pewsey Vale", "dna": ["Fog", "Inversion", "Telephoto", "Drone", "Sunrise"], "score": 9.0, "driveMin": 80, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add exact lay-by/parking What3Words tomorrow.", "worksBest": ["Fog inversion", "Low wind", "Broken eastern cloud", "Frost", "Sunrise"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Savernake Forest", "region": "Wiltshire", "tier": "Tier 1", "area": "Marlborough", "dna": ["Ancient woodland", "Autumn", "Wild garlic", "Bluebells", "Mist"], "score": 8.5, "driveMin": 80, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add preferred parking/access tomorrow.", "worksBest": ["Autumn colour", "Mist", "Soft overcast", "Frost", "Wild garlic season"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Avebury", "region": "Wiltshire", "tier": "Tier 2", "area": "Marlborough Downs", "dna": ["Stones", "Historic", "Astro", "Sunrise", "Mist"], "score": 8.0, "driveMin": 100, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add parking details tomorrow.", "worksBest": ["Mist", "Frost", "Sunrise", "Sunset", "Astro"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Stonehenge", "region": "Wiltshire", "tier": "Tier 2", "area": "Salisbury Plain", "dna": ["Stones", "Silhouette", "Telephoto", "Historic", "Mist"], "score": 7.6, "driveMin": 85, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add preferred viewpoint/parking tomorrow.", "worksBest": ["Winter sun", "Mist", "Dramatic cloud", "Telephoto silhouette", "Frost"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Alton Barnes White Horse", "region": "Wiltshire", "tier": "Tier 2", "area": "Pewsey Vale", "dna": ["White horse", "Downland", "Drone", "Sunrise", "Fog"], "score": 8.0, "driveMin": 95, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add parking and viewpoint details tomorrow.", "worksBest": ["Fog", "Low side light", "Drone-safe wind", "Frost", "Broken cloud"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Milk Hill", "region": "Wiltshire", "tier": "Tier 2", "area": "Pewsey Vale", "dna": ["Downland", "White horse", "Drone", "Views", "Fog"], "score": 8.1, "driveMin": 95, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add parking details tomorrow.", "worksBest": ["Inversion", "Fog", "Low wind", "Sunrise", "Drone-safe wind"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Pewsey Vale", "region": "Wiltshire", "tier": "Tier 2", "area": "Pewsey Vale", "dna": ["Fog", "Telephoto", "Layers", "Sunrise", "Downland"], "score": 8.3, "driveMin": 85, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add exact viewpoint parking tomorrow.", "worksBest": ["Fog", "Inversion", "Low wind", "Telephoto layers", "Sunrise"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Garston Wood", "region": "Bluebells / Wild Garlic", "tier": "Seasonal", "area": "Dorset / Wiltshire area", "dna": ["Woodland", "Bluebells", "Wild garlic", "Spring", "Soft light"], "score": 8.0, "driveMin": 100, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add exact parking and What3Words tomorrow.", "worksBest": ["Bluebells", "Wild garlic", "Soft overcast", "Mist", "Spring greens"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Pamber Forest", "region": "Bluebells / Wild Garlic", "tier": "Seasonal", "area": "Hampshire", "dna": ["Woodland", "Bluebells", "Spring", "Paths", "Soft light"], "score": 7.8, "driveMin": 45, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add exact parking tomorrow.", "worksBest": ["Bluebells", "Soft overcast", "Mist", "Backlight", "Spring greens"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Bushy Park", "region": "Deer / Wildlife", "tier": "Seasonal", "area": "London / Surrey", "dna": ["Deer", "Autumn", "Telephoto", "Rut", "Mist"], "score": 8.0, "driveMin": 55, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add preferred parking tomorrow.", "worksBest": ["Autumn rut", "Mist", "Frost", "Sunrise", "Backlight"], "notes": "John does not visit often, but keep as wildlife/deer seasonal entry.", "heroImage": "", "gallery": []}, {"name": "Richmond Park", "region": "Deer / Wildlife", "tier": "Seasonal", "area": "London", "dna": ["Deer", "Autumn", "Telephoto", "Trees", "Mist"], "score": 8.0, "driveMin": 60, "parkingPostcode": "", "w3w": "", "parkingNotes": "Add preferred parking tomorrow.", "worksBest": ["Autumn rut", "Mist", "Frost", "Sunrise", "Backlight"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Bourley Lakes", "region": "Surrey / Hampshire", "tier": "Tier 2", "area": "Aldershot / Fleet", "dna": ["Lakes", "Reflections", "Mist", "Birdlife", "Local"], "score": 8.1, "driveMin": 15, "parkingPostcode": "GU11 2HL", "w3w": "", "parkingNotes": "Use nearby public parking/access around Bourley Road area. Check access and restrictions before dawn visits.", "worksBest": ["Morning mist", "Calm wind", "Reflections", "Soft light", "Autumn colour"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Old Winchester Hill", "region": "Hampshire", "tier": "Tier 1", "area": "South Downs", "dna": ["Hilltop", "Downland", "Layers", "Sunrise", "Telephoto"], "score": 9.0, "driveMin": 65, "parkingPostcode": "SO32 3LR", "w3w": "", "parkingNotes": "Old Winchester Hill National Nature Reserve car park. Check seasonal access and livestock.", "worksBest": ["Sunrise", "Valley mist", "Frost", "Low wind", "Side light"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Zebon Copse", "region": "Surrey / Hampshire", "tier": "Seasonal", "area": "Church Crookham / Fleet", "dna": ["Woodland", "Bluebells", "Paths", "Local", "Spring"], "score": 7.8, "driveMin": 15, "parkingPostcode": "GU52 0ZE", "w3w": "", "parkingNotes": "Local residential access around Zebon Copse / Church Crookham. Park considerately.", "worksBest": ["Spring", "Bluebells", "Overcast light", "Morning calm", "Fresh green leaves"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Durdle Door", "region": "Dorset", "tier": "Tier 1", "area": "Lulworth / Jurassic Coast", "dna": ["Coast", "Arch", "Sunrise", "Sunset", "Long exposure"], "score": 9.7, "driveMin": 145, "parkingPostcode": "BH20 5PU", "w3w": "", "parkingNotes": "Use Durdle Door car park. Steep walk down to the beach; allow time and take care in darkness.", "worksBest": ["Sunrise", "Sunset", "Winter light", "Long exposure", "Clear visibility"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Corfe Castle", "region": "Dorset", "tier": "Tier 1", "area": "Purbeck", "dna": ["Castle", "Mist", "Telephoto", "Sunrise", "Historic"], "score": 9.6, "driveMin": 130, "parkingPostcode": "BH20 5DR", "w3w": "", "parkingNotes": "Use Corfe Castle village parking or National Trust options. Classic viewpoints from West Hill / East Hill area.", "worksBest": ["Sunrise", "Mist", "Winter", "Telephoto light", "Low wind"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Kimmeridge Bay", "region": "Dorset", "tier": "Tier 1", "area": "Isle of Purbeck", "dna": ["Coast", "Rock ledges", "Long exposure", "Storm light", "Sunset"], "score": 9.3, "driveMin": 135, "parkingPostcode": "BH20 5PF", "w3w": "", "parkingNotes": "Kimmeridge Bay car park. Check tide, slippery rocks and wave conditions carefully.", "worksBest": ["Sunset", "Storm light", "Low tide", "Long exposure", "Dramatic cloud"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Dancing Ledge", "region": "Dorset", "tier": "Tier 1", "area": "Purbeck Coast", "dna": ["Coast", "Ledges", "Long exposure", "Sunset", "Drama"], "score": 9.1, "driveMin": 135, "parkingPostcode": "BH19 3LD", "w3w": "", "parkingNotes": "Park near Spyway / Langton Matravers and walk down. Uneven coastal path; allow time for the return climb.", "worksBest": ["Sunset", "Low tide", "Long exposure", "Broken cloud", "Winter light"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Swanage Head", "region": "Dorset", "tier": "Tier 2", "area": "Swanage / Purbeck Coast", "dna": ["Coast", "Cliffs", "Telephoto", "Sunrise", "Sea views"], "score": 8.6, "driveMin": 135, "parkingPostcode": "BH19 2JL", "w3w": "", "parkingNotes": "Use Swanage seafront / Durlston area depending on viewpoint. Check access and cliff safety.", "worksBest": ["Sunrise", "Clear visibility", "Side light", "Calm wind", "Telephoto layers"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Mupe Bay", "region": "Dorset", "tier": "Tier 2", "area": "Lulworth Ranges", "dna": ["Coast", "Chalk cliffs", "Secluded bay", "Sunrise", "Long walk"], "score": 8.7, "driveMin": 145, "parkingPostcode": "BH20 5QS", "w3w": "", "parkingNotes": "Access depends on Lulworth Ranges opening times. Check MOD access before travelling.", "worksBest": ["Sunrise", "Clear visibility", "Calm wind", "Low tide", "Soft light"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Tyneham Village", "region": "Dorset", "tier": "Tier 2", "area": "Lulworth Ranges", "dna": ["Abandoned village", "Historic", "Atmosphere", "Documentary", "Coast nearby"], "score": 8.4, "driveMin": 140, "parkingPostcode": "BH20 5QQ", "w3w": "", "parkingNotes": "Access depends on Lulworth Ranges opening times. Check MOD access before travelling.", "worksBest": ["Overcast light", "Moody weather", "Winter", "Quiet mornings", "Documentary details"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Worbarrow Bay", "region": "Dorset", "tier": "Tier 1", "area": "Lulworth Ranges", "dna": ["Coast", "Bay", "Cliffs", "Long exposure", "Remote"], "score": 9.0, "driveMin": 145, "parkingPostcode": "BH20 5QQ", "w3w": "", "parkingNotes": "Access via Tyneham when Lulworth Ranges are open. Long walk; check MOD opening times.", "worksBest": ["Sunrise", "Low tide", "Long exposure", "Clear visibility", "Winter light"], "notes": "", "heroImage": "", "gallery": []}, {"name": "Ringstead Bay", "region": "Dorset", "tier": "Tier 2", "area": "Jurassic Coast", "dna": ["Coast", "Cliffs", "Beach", "Sunrise", "Long exposure"], "score": 8.6, "driveMin": 140, "parkingPostcode": "DT2 8NQ", "w3w": "", "parkingNotes": "Use Ringstead National Trust car park. Check seasonal parking and cliff path conditions.", "worksBest": ["Sunrise", "Calm wind", "Low tide", "Long exposure", "Soft light"], "notes": "", "heroImage": "", "gallery": []}];
+
+
+
+/* v8.6 Custom Location Manager + Editor */
+const PF_CUSTOM_LOCATIONS_KEY = "pf_custom_locations_v1";
+let pfEditingCustomLocationName = "";
+
+function pfSafeParseJSON(value, fallback){
+  try{ return JSON.parse(value || ""); }catch(e){ return fallback; }
+}
+function getCustomLocations(){
+  return pfSafeParseJSON(localStorage.getItem(PF_CUSTOM_LOCATIONS_KEY), []);
+}
+function setCustomLocations(list){
+  localStorage.setItem(PF_CUSTOM_LOCATIONS_KEY, JSON.stringify(list));
+}
+function normaliseCustomLocation(raw){
+  const splitList = (v)=>String(v||"").split(",").map(x=>x.trim()).filter(Boolean);
+  return {
+    name:String(raw.name||"").trim(),
+    region:String(raw.region||"Custom").trim() || "Custom",
+    tier:String(raw.tier||"Tier 2").trim() || "Tier 2",
+    area:String(raw.area||raw.region||"Custom Location").trim() || "Custom Location",
+    dna:Array.isArray(raw.dna) ? raw.dna : splitList(raw.dna),
+    score:Number(raw.score || 7.5),
+    driveMin:Number(raw.driveMin || 0),
+    parkingPostcode:String(raw.parkingPostcode||"").trim(),
+    w3w:String(raw.w3w||"").trim(),
+    lat:(raw.lat!==undefined && raw.lat!=="" && !isNaN(Number(raw.lat))) ? Number(raw.lat) : undefined,
+    lon:(raw.lon!==undefined && raw.lon!=="" && !isNaN(Number(raw.lon))) ? Number(raw.lon) : undefined,
+    parkingNotes:String(raw.parkingNotes||"").trim(),
+    worksBest:Array.isArray(raw.worksBest) ? raw.worksBest : splitList(raw.worksBest),
+    notes:String(raw.notes||"").trim(),
+    heroImage:"",
+    gallery:[],
+    custom:true
+  };
+}
+function applyCustomLocations(){
+  const custom = getCustomLocations().map(normaliseCustomLocation).filter(l=>l.name);
+  custom.forEach(l=>{
+    const existing = locations.findIndex(x=>x.name === l.name);
+    if(existing >= 0){ locations[existing] = {...locations[existing], ...l, custom:true}; }
+    else locations.push(l);
+  });
+}
+applyCustomLocations();
+
+function pfEscapeAttr(text){
+  return String(text||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function pfEscapeJS(text){
+  return String(text||"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\n/g,"\\n").replace(/\r/g,"");
+}
+function setCustomFormMode(mode, name=""){
+  pfEditingCustomLocationName = mode === "edit" ? name : "";
+  const btn=document.getElementById("customLocSaveBtn");
+  const cancel=document.getElementById("customLocCancelEditBtn");
+  const saved=document.getElementById("customLocSaved");
+  if(btn) btn.textContent = mode === "edit" ? "Update Location" : "Save New Location";
+  if(cancel) cancel.style.display = mode === "edit" ? "inline-block" : "none";
+  if(saved) saved.textContent = mode === "edit" ? `Editing: ${name}` : "";
+}
+function fillCustomLocationForm(raw){
+  const l=normaliseCustomLocation(raw);
+  const set=(id,val)=>{ const el=document.getElementById(id); if(el) el.value = val ?? ""; };
+  set("customLocName", l.name);
+  set("customLocRegion", l.region);
+  const tier=document.getElementById("customLocTier"); if(tier) tier.value=l.tier;
+  set("customLocDrive", l.driveMin || "");
+  set("customLocArea", l.area);
+  set("customLocScore", l.score || "");
+  set("customLocPostcode", l.parkingPostcode);
+  set("customLocW3W", l.w3w);
+  set("customLocLat", l.lat ?? "");
+  set("customLocLon", l.lon ?? "");
+  set("customLocDNA", (l.dna||[]).join(", "));
+  set("customLocWorksBest", (l.worksBest||[]).join(", "));
+  set("customLocParking", l.parkingNotes);
+  set("customLocNotes", l.notes);
+}
+function editCustomLocation(name){
+  const raw=getCustomLocations().find(l=>l.name===name);
+  if(!raw){ alert("Could not find that custom location."); return; }
+  fillCustomLocationForm(raw);
+  setCustomFormMode("edit", name);
+  pfSetPage("categories");
+  const el=document.getElementById("customLocName");
+  if(el) el.scrollIntoView({behavior:"smooth", block:"center"});
+}
+function duplicateCustomLocation(name){
+  const raw=getCustomLocations().find(l=>l.name===name);
+  if(!raw){ alert("Could not find that custom location."); return; }
+  fillCustomLocationForm({...raw, name:`${raw.name} Copy`});
+  setCustomFormMode("new");
+  pfSetPage("categories");
+  const el=document.getElementById("customLocName");
+  if(el) el.scrollIntoView({behavior:"smooth", block:"center"});
+}
+function cancelCustomLocationEdit(){
+  clearCustomLocationForm();
+  setCustomFormMode("new");
+}
+function refreshSelectorsAfterCustomLocation(locationName){
+  const rs=document.getElementById("regionSelect");
+  if(!rs) return;
+  const currentRegion=localStorage.getItem("pf_last_region") || (selectedLocation()||{}).region || "Dorset";
+  rs.innerHTML="";
+  regionList().forEach(r=>{
+    const o=document.createElement("option");
+    o.value=r; o.textContent=r; rs.appendChild(o);
+  });
+  const match=locations.find(l=>l.name===locationName);
+  if(match){
+    document.getElementById("regionSelect").value=match.region;
+    document.getElementById("tierSelect").value=match.tier;
+    populateLocations(String(locations.indexOf(match)));
+    document.getElementById("locationSelect").value=String(locations.indexOf(match));
+    localStorage.setItem("pf_last_region", match.region);
+    localStorage.setItem("pf_last_tier", match.tier);
+    localStorage.setItem("pf_last_location", String(locations.indexOf(match)));
+  }else if([...rs.options].some(o=>o.value===currentRegion)){
+    rs.value=currentRegion;
+    populateLocations();
+  }else{
+    populateLocations();
+  }
+  if(typeof render === "function") render();
+  if(typeof renderCustomLocations === "function") renderCustomLocations();
+}
+function clearCustomLocationForm(){
+  ["customLocName","customLocRegion","customLocDrive","customLocArea","customLocScore","customLocPostcode","customLocW3W","customLocLat","customLocLon","customLocDNA","customLocWorksBest","customLocParking","customLocNotes"].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value="";
+  });
+  const tier=document.getElementById("customLocTier"); if(tier) tier.value="Tier 2";
+  const saved=document.getElementById("customLocSaved"); if(saved) saved.textContent="";
+  setCustomFormMode("new");
+}
+function migrateLocalStorageLocationKeys(oldName,newName){
+  if(!oldName || !newName || oldName===newName) return;
+  const prefixes=["pf_opportunity_tags","pf_target_description","pf_target_priority","pf_target_status","pf_field_category","pf_field_status","pf_checklist","pf_compositions_FOR","pf_postcode","pf_w3w","pf_parking","pf_notes","pf_gallery","pf_visits"];
+  prefixes.forEach(prefix=>{
+    const oldKey=`${prefix}_${oldName}`;
+    const newKey=`${prefix}_${newName}`;
+    if(localStorage.getItem(oldKey)!==null && localStorage.getItem(newKey)===null){
+      localStorage.setItem(newKey, localStorage.getItem(oldKey));
+      localStorage.removeItem(oldKey);
+    }
+  });
+}
+function saveCustomLocation(){
+  const val=id=>((document.getElementById(id)||{}).value||"").trim();
+  const name=val("customLocName");
+  if(!name){ alert("Add a location name first."); return; }
+  const loc=normaliseCustomLocation({
+    name,
+    region:val("customLocRegion") || "Custom",
+    tier:(document.getElementById("customLocTier")||{}).value || "Tier 2",
+    driveMin:val("customLocDrive"),
+    area:val("customLocArea"),
+    score:val("customLocScore") || 7.5,
+    parkingPostcode:val("customLocPostcode"),
+    w3w:val("customLocW3W"),
+    lat:val("customLocLat"),
+    lon:val("customLocLon"),
+    dna:val("customLocDNA"),
+    worksBest:val("customLocWorksBest"),
+    parkingNotes:val("customLocParking"),
+    notes:val("customLocNotes")
+  });
+  const oldName = pfEditingCustomLocationName;
+  let custom=getCustomLocations().filter(l=>l.name!==loc.name && (!oldName || l.name!==oldName));
+  custom.push(loc);
+  custom.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
+  setCustomLocations(custom);
+  if(oldName && oldName !== loc.name){
+    const oldIndex=locations.findIndex(l=>l.name===oldName && l.custom);
+    if(oldIndex>=0) locations.splice(oldIndex,1);
+    migrateLocalStorageLocationKeys(oldName, loc.name);
+  }
+  const existing=locations.findIndex(l=>l.name===loc.name);
+  if(existing>=0) locations[existing]={...locations[existing],...loc,custom:true}; else locations.push(loc);
+  const saved=document.getElementById("customLocSaved"); if(saved) saved.textContent=oldName ? "Location updated." : "Location saved.";
+  setCustomFormMode("new");
+  clearCustomLocationForm();
+  refreshSelectorsAfterCustomLocation(loc.name);
+  pfSetPage("overview");
+}
+function deleteCustomLocation(name){
+  if(!confirm("Remove this custom location from the app? Existing saved notes/compositions for the same name will not be cleared.")) return;
+  setCustomLocations(getCustomLocations().filter(l=>l.name!==name));
+  const i=locations.findIndex(l=>l.name===name && l.custom);
+  if(i>=0) locations.splice(i,1);
+  refreshSelectorsAfterCustomLocation(null);
+}
+function selectLocationByNameSafe(name){
+  const i=locations.findIndex(l=>l.name===name);
+  if(i>=0) selectLocation(i);
+}
+function renameCustomRegion(){
+  const from=((document.getElementById("regionRenameFrom")||{}).value||"").trim();
+  const to=((document.getElementById("regionRenameTo")||{}).value||"").trim();
+  const status=document.getElementById("regionRenameSaved");
+  if(!from || !to){ alert("Add both the current region name and the new region name."); return; }
+  let changed=0;
+  const custom=getCustomLocations().map(raw=>{
+    if(String(raw.region||"").trim()===from){ changed++; return {...raw, region:to}; }
+    return raw;
+  });
+  setCustomLocations(custom);
+  locations.forEach(l=>{ if(l.custom && l.region===from) l.region=to; });
+  if(status) status.textContent = changed ? `Renamed ${changed} custom location(s).` : "No custom locations matched that region.";
+  refreshSelectorsAfterCustomLocation(null);
+}
+function renderCustomLocations(){
+  const el=document.getElementById("customLocationList");
+  if(!el) return;
+  const custom=getCustomLocations().map(normaliseCustomLocation).filter(l=>l.name);
+  if(!custom.length){
+    el.innerHTML=`<div class="empty-state">No custom locations yet. Add places like The Dutch Barn here.</div>`;
+    return;
+  }
+  el.innerHTML=custom.map(l=>`
+    <div class="loc-manager-item">
+      <div><strong>${pfEscapeAttr(l.name)}</strong><span>${pfEscapeAttr(l.region)} · ${pfEscapeAttr(l.tier)} · ~${l.driveMin||"?"} mins</span><span>${pfEscapeAttr((l.dna||[]).slice(0,5).join(" · "))}</span><span>${(l.lat&&l.lon) ? `Weather: ${Number(l.lat).toFixed(4)}, ${Number(l.lon).toFixed(4)}` : "Weather coords not set"}</span></div>
+      <div><button onclick="selectLocationByNameSafe('${pfEscapeJS(l.name)}')">Open</button><button onclick="editCustomLocation('${pfEscapeJS(l.name)}')">Edit</button><button onclick="duplicateCustomLocation('${pfEscapeJS(l.name)}')">Duplicate</button><button class="danger" onclick="deleteCustomLocation('${pfEscapeJS(l.name)}')">Remove</button></div>
+    </div>`).join("");
+}
+
+function regionList(){ return ["All regions", ...Array.from(new Set(locations.map(l=>l.region))).sort()]; }
+function scoreText(score){
+  if(score>=8.8) return ["Get out of bed.","Strong potential. This is the sort of shoot you regret ignoring."];
+  if(score>=7.5) return ["Worth checking conditions.","There is enough here to justify a serious look."];
+  if(score>=6.3) return ["Possible, but selective.","Good if you're nearby or conditions are unusually strong."];
+  return ["Not a main target.","Keep it for future exploration or opportunistic visits."];
+}
+function driveMatches(l, range){
+  if(range===999) return true;
+  if(range===30) return l.driveMin <= 30;
+  if(range===60) return l.driveMin > 30 && l.driveMin <= 60;
+  if(range===90) return l.driveMin > 60 && l.driveMin <= 90;
+  if(range===120) return l.driveMin > 90 && l.driveMin <= 120;
+  if(range===9999) return l.driveMin > 120;
+  return true;
+}
+function timeScore(l,time){
+  let s = l.score;
+  const wb = (l.worksBest || []).join(" ").toLowerCase();
+  const dna = l.dna.join(" ").toLowerCase();
+  if(time==="Midday") s -= .55;
+  if(time==="Sunrise" && wb.includes("sunrise")) s += .35;
+  if(time==="Sunset" && wb.includes("sunset")) s += .35;
+  if(time==="Morning" && (wb.includes("mist") || wb.includes("fog") || dna.includes("mist"))) s += .25;
+  if(time==="Night / Astro" && dna.includes("astro")) s += .35;
+  return Math.max(2.5, Math.min(9.8, s));
+}
+function whyFor(l,time){
+  const r=[];
+  if(l.driveMin<=30) r.push("very close to home");
+  else if(l.driveMin<=60) r.push("quick morning distance");
+  else if(l.driveMin<=90) r.push("half-day adventure distance");
+  else if(l.driveMin<=120) r.push("big morning commitment");
+  else r.push("full-day mission territory");
+  const joined=(l.dna.join(" ")+" "+(l.worksBest||[]).join(" ")).toLowerCase();
+  if(joined.includes("mist") || joined.includes("fog")) r.push("strong atmosphere potential");
+  if(joined.includes("drone")) r.push("drone potential");
+  if(joined.includes("coast")) r.push("coastal light and drama");
+  if(l.tier==="Tier 1") r.push("flagship location");
+  return r.slice(0,4);
+}
+
+
+
+
+
+const opportunityGroups = {
+  "Light & Weather": [
+    "Sunrise","Sunset","Fog","Mist","Frost","Storm Light","Rainbow Potential","Cloud Inversion","Golden Hour","Blue Hour"
+  ],
+  "Subject Matter": [
+    "Bluebells","Wild Garlic","Deer","Wildlife","Lone Tree","Tree Tunnel","Church / Ruins","Coast","Woodland","Water","Hill / Vista"
+  ],
+  "Techniques": [
+    "Drone","Long Exposure","Telephoto Landscape","Wide Angle","Astrophotography","Black & White","Minimalism"
+  ],
+  "Seasons": [
+    "Spring","Summer","Autumn","Winter","All Year"
+  ]
+};
+
+function opportunityKey(){ return locKey("pf_opportunity_tags"); }
+
+function inferOpportunityTags(l){
+  const text = [
+    l.name || "",
+    l.region || "",
+    l.area || "",
+    l.tier || "",
+    ...(l.dna || []),
+    ...(l.worksBest || [])
+  ].join(" ").toLowerCase();
+
+  const tags = new Set();
+
+  const addIf = (cond, tag) => { if(cond) tags.add(tag); };
+
+  addIf(text.includes("sunrise"), "Sunrise");
+  addIf(text.includes("sunset"), "Sunset");
+  addIf(text.includes("fog") || text.includes("inversion"), "Fog");
+  addIf(text.includes("mist"), "Mist");
+  addIf(text.includes("frost"), "Frost");
+  addIf(text.includes("storm"), "Storm Light");
+  addIf(text.includes("rainbow"), "Rainbow Potential");
+  addIf(text.includes("inversion"), "Cloud Inversion");
+  addIf(text.includes("golden"), "Golden Hour");
+  addIf(text.includes("blue hour"), "Blue Hour");
+
+  addIf(text.includes("bluebell"), "Bluebells");
+  addIf(text.includes("wild garlic"), "Wild Garlic");
+  addIf(text.includes("deer"), "Deer");
+  addIf(text.includes("wildlife"), "Wildlife");
+  addIf(text.includes("lone tree"), "Lone Tree");
+  addIf(text.includes("tree tunnel") || text.includes("avenue"), "Tree Tunnel");
+  addIf(text.includes("church") || text.includes("ruins") || text.includes("chapel") || text.includes("abbey"), "Church / Ruins");
+  addIf(text.includes("coast") || text.includes("cliff") || text.includes("beach") || text.includes("cove") || text.includes("harbour") || text.includes("bill"), "Coast");
+  addIf(text.includes("woodland") || text.includes("forest") || text.includes("woods") || text.includes("beech"), "Woodland");
+  addIf(text.includes("water") || text.includes("pond") || text.includes("river") || text.includes("lagoon") || text.includes("reflections"), "Water");
+  addIf(text.includes("hill") || text.includes("vista") || text.includes("views") || text.includes("downland") || text.includes("vale"), "Hill / Vista");
+
+  addIf(text.includes("drone"), "Drone");
+  addIf(text.includes("long exposure"), "Long Exposure");
+  addIf(text.includes("telephoto"), "Telephoto Landscape");
+  addIf(text.includes("wide angle"), "Wide Angle");
+  addIf(text.includes("astro"), "Astrophotography");
+  addIf(text.includes("black") || text.includes("monochrome"), "Black & White");
+  addIf(text.includes("minimal"), "Minimalism");
+
+  addIf(text.includes("spring"), "Spring");
+  addIf(text.includes("summer"), "Summer");
+  addIf(text.includes("autumn"), "Autumn");
+  addIf(text.includes("winter"), "Winter");
+  if(!["Spring","Summer","Autumn","Winter"].some(t=>tags.has(t))) tags.add("All Year");
+
+  return [...tags];
+}
+
+function getOpportunityTags(){
+  const saved = localStorage.getItem(opportunityKey());
+  if(saved) return JSON.parse(saved);
+  const l = selectedLocation();
+  return l ? inferOpportunityTags(l) : [];
+}
+
+function renderOpportunityTags(){
+  const container = document.getElementById("opportunityTagGroups");
+  if(!container) return;
+  const selected = new Set(getOpportunityTags());
+
+  container.innerHTML = Object.entries(opportunityGroups).map(([group,tags])=>{
+    return `<div class="tag-group">
+      <h3>${group}</h3>
+      <div class="tag-checks">
+        ${tags.map(tag=>{
+          const checked = selected.has(tag) ? "checked" : "";
+          const seasonClass = group==="Seasons" ? "season-pill" : "";
+          return `<label class="tag-check ${seasonClass}"><input type="checkbox" data-tag="${tag}" ${checked}> ${tag}</label>`;
+        }).join("")}
+      </div>
+    </div>`;
+  }).join("");
+  const saved=document.getElementById("tagSaved");
+  if(saved) saved.textContent="";
+}
+
+function saveOpportunityTags(){
+  if(!selectedLocation()) return;
+  const tags = [];
+  document.querySelectorAll("#opportunityTagGroups input[type=checkbox]").forEach(cb=>{
+    if(cb.checked) tags.push(cb.dataset.tag);
+  });
+  localStorage.setItem(opportunityKey(), JSON.stringify(tags));
+  document.getElementById("tagSaved").textContent = "Tags saved.";
+  render();
+}
+
+function resetOpportunityTags(){
+  if(!selectedLocation()) return;
+  localStorage.removeItem(opportunityKey());
+  renderOpportunityTags();
+  document.getElementById("tagSaved").textContent = "Tags reset to suggested defaults.";
+}
+
+
+function targetKey(suffix){ return locKey("pf_target_"+suffix); }
+
+function openTargetDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open("PhotoForecastTargetImages",1);
+    req.onupgradeneeded=()=>{ req.result.createObjectStore("targets"); };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+  const summary=document.getElementById("photoWeatherSummary");
+  if(summary) summary.textContent="Weather unavailable.";
+}
+async function saveTargetImageToDB(key,value){
+  const db=await openTargetDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction("targets","readwrite");
+    tx.objectStore("targets").put(value,key);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+async function getTargetImageFromDB(key){
+  const db=await openTargetDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction("targets","readonly");
+    const req=tx.objectStore("targets").get(key);
+    req.onsuccess=()=>resolve(req.result || "");
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function deleteTargetImageFromDB(key){
+  const db=await openTargetDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction("targets","readwrite");
+    tx.objectStore("targets").delete(key);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+
+function compressTargetImage(file, maxDim=1200, quality=0.72){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error("Could not read image."));
+    reader.onload=(ev)=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error("Could not load image."));
+      img.onload=()=>{
+        const canvas=document.createElement("canvas");
+        const scale=Math.min(1,maxDim/Math.max(img.width,img.height));
+        canvas.width=Math.round(img.width*scale);
+        canvas.height=Math.round(img.height*scale);
+        canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+        resolve(canvas.toDataURL("image/jpeg",quality));
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function renderTargetShot(){
+  const l=selectedLocation(); if(!l) return;
+  const desc=document.getElementById("targetDescription");
+  const priority=document.getElementById("targetPriority");
+  const status=document.getElementById("targetStatus");
+  const slot=document.getElementById("targetSlot");
+  if(!desc || !priority || !status || !slot) return;
+
+  desc.value=localStorage.getItem(targetKey("description")) || "";
+  priority.value=localStorage.getItem(targetKey("priority")) || "Medium";
+  status.value=localStorage.getItem(targetKey("status")) || "Not Attempted";
+
+  const img=await getTargetImageFromDB(targetKey("image"));
+  slot.innerHTML=img ? `<img src="${img}" alt="Target inspiration image">` : "Target inspiration image placeholder<br>Add screenshot or reference photo here";
+
+  const saved=document.getElementById("targetSaved");
+  if(saved) saved.textContent="";
+}
+async function handleTargetImageUpload(e){
+  if(!selectedLocation()) return;
+  const file=e.target.files[0]; if(!file) return;
+  const saved=document.getElementById("targetSaved");
+  if(saved) saved.textContent="Processing target image...";
+  try{
+    const compressed=await compressTargetImage(file,1200,0.72);
+    await saveTargetImageToDB(targetKey("image"),compressed);
+    await renderTargetShot();
+  renderCompositions();
+  renderOpportunityTags();
+    if(saved) saved.textContent="Target image saved.";
+  }catch(err){
+    console.error(err);
+    alert("Target image could not be saved. Try a smaller screenshot/photo.");
+  }finally{
+    e.target.value="";
+  }
+}
+function saveTargetShot(){
+  if(!selectedLocation()) return;
+  localStorage.setItem(targetKey("description"), document.getElementById("targetDescription").value);
+  localStorage.setItem(targetKey("priority"), document.getElementById("targetPriority").value);
+  localStorage.setItem(targetKey("status"), document.getElementById("targetStatus").value);
+  document.getElementById("targetSaved").textContent="Target shot saved.";
+}
+async function clearTargetImage(){
+  if(!selectedLocation()) return;
+  await deleteTargetImageFromDB(targetKey("image"));
+  await renderTargetShot();
+}
+
+function pfSearchLocations(term){
+  term = String(term || "").toLowerCase().trim();
+  if(!term) return [];
+  return locations.filter(l=>{
+    let cat = "";
+    try { cat = getLocationCategory(l); } catch(e) {}
+    const haystack = [
+      l.name || "",
+      l.region || "",
+      l.tier || "",
+      l.area || "",
+      cat || "",
+      ...(l.dna || []),
+      ...(l.worksBest || []),
+      ...(localStorage.getItem("pf_opportunity_tags_" + l.name) ? JSON.parse(localStorage.getItem("pf_opportunity_tags_" + l.name)) : [])
+    ].join(" ").toLowerCase();
+    return haystack.includes(term);
+  }).slice(0,25);
+}
+
+function pfRenderSearchResults(){
+  const box = document.getElementById("locationSearch");
+  const results = document.getElementById("searchResults");
+  if(!box || !results) return;
+
+  const term = box.value.trim();
+  if(!term){
+    results.innerHTML = "";
+    return;
+  }
+
+  const matches = pfSearchLocations(term);
+  results.innerHTML = matches.length ? matches.map(l=>{
+    const idx = locations.indexOf(l);
+    return `<div class="search-hit" onclick="pfSelectSearchResult(${idx})">
+      <strong>${l.name}</strong>
+      <span>${l.region} · ${l.tier} · ${l.area || ""}</span>
+    </div>`;
+  }).join("") : `<div class="empty-state">No matching locations found.</div>`;
+}
+
+function pfSelectSearchResult(idx){
+  const l = locations[idx];
+  if(!l) return;
+
+  const regionSelect = document.getElementById("regionSelect");
+  const tierSelect = document.getElementById("tierSelect");
+  const locationSelect = document.getElementById("locationSelect");
+
+  regionSelect.value = l.region;
+  tierSelect.value = l.tier;
+  populateLocations(String(idx));
+  locationSelect.value = String(idx);
+
+  localStorage.setItem("pf_last_region", l.region);
+  localStorage.setItem("pf_last_tier", l.tier);
+  localStorage.setItem("pf_last_location", String(idx));
+
+  const box = document.getElementById("locationSearch");
+  const results = document.getElementById("searchResults");
+  if(box) box.value = "";
+  if(results) results.innerHTML = "";
+
+  render();
+  const loc = document.querySelector(".location-head");
+  if(loc) loc.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function getFavourites(){
+  return JSON.parse(localStorage.getItem("pf_favourites") || "[]");
+}
+function saveFavourites(list){
+  localStorage.setItem("pf_favourites", JSON.stringify([...new Set(list)]));
+}
+function isFavouriteLocation(name){
+  return getFavourites().includes(name);
+}
+function toggleFavourite(){
+  const l=selectedLocation(); if(!l) return;
+  let favs=getFavourites();
+  if(favs.includes(l.name)){
+    favs=favs.filter(x=>x!==l.name);
+  }else{
+    favs.unshift(l.name);
+  }
+  saveFavourites(favs);
+  renderFavouriteButton();
+  renderQuickAccess();
+}
+function renderFavouriteButton(){
+  const l=selectedLocation(); if(!l) return;
+  const btn=document.getElementById("favButton");
+  if(!btn) return;
+  const active=isFavouriteLocation(l.name);
+  btn.textContent=active ? "⭐ Favourite" : "☆ Add Favourite";
+  btn.classList.toggle("active", active);
+}
+function getRecent(){
+  return JSON.parse(localStorage.getItem("pf_recent_locations") || "[]");
+}
+function saveRecent(list){
+  localStorage.setItem("pf_recent_locations", JSON.stringify(list.slice(0,8)));
+}
+function addRecentLocation(l){
+  if(!l) return;
+  let rec=getRecent().filter(x=>x!==l.name);
+  rec.unshift(l.name);
+  saveRecent(rec);
+}
+function locationByName(name){
+  return locations.find(l=>l.name===name);
+}
+function renderQuickList(containerId, names, emptyText){
+  const el=document.getElementById(containerId);
+  if(!el) return;
+  const valid=names.map(locationByName).filter(Boolean);
+  el.innerHTML = valid.length ? valid.map(l=>{
+    const i=locations.indexOf(l);
+    return `<div class="quick-item" onclick="selectLocation(${i})">
+      <div><strong>${l.name}</strong><span>${l.region} · ${l.tier}</span></div>
+      <div>${isFavouriteLocation(l.name) ? "⭐" : ""}</div>
+    </div>`;
+  }).join("") : `<div class="empty-state">${emptyText}</div>`;
+}
+function renderQuickAccess(){
+  renderQuickList("favouritesList", getFavourites(), "No favourites yet. Star your go-to locations.");
+}
+
+function openHeroDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open("PhotoForecastHeroImages",1);
+    req.onupgradeneeded=()=>{ req.result.createObjectStore("heroes"); };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function saveHeroToDB(key,value){
+  const db=await openHeroDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction("heroes","readwrite");
+    tx.objectStore("heroes").put(value,key);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+async function getHeroFromDB(key){
+  const db=await openHeroDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction("heroes","readonly");
+    const req=tx.objectStore("heroes").get(key);
+    req.onsuccess=()=>resolve(req.result || "");
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function deleteHeroFromDB(key){
+  const db=await openHeroDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction("heroes","readwrite");
+    tx.objectStore("heroes").delete(key);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+async function clearAllHeroImages(){
+  if(!confirm("Clear all saved hero images from this app? Notes and parking will remain.")) return;
+  const db=await openHeroDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction("heroes","readwrite");
+    tx.objectStore("heroes").clear();
+    tx.oncomplete=async ()=>{
+      await renderHero();
+      alert("All hero images cleared.");
+      resolve();
+    };
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+
+
+
+
+const browserCategories = [
+  "Bluebells & Wild Garlic",
+  "Deer & Wildlife",
+  "Lone Trees",
+  "Tree Tunnels",
+  "Churches & Ruins",
+  "Coast",
+  "Hills & Views",
+  "Future Scouting",
+  "Portfolio Locations"
+];
+
+function getLocationCategory(l){
+  return localStorage.getItem("pf_field_category_" + l.name) || inferCategory(l);
+}
+function getLocationStatus(l){
+  return localStorage.getItem("pf_field_status_" + l.name) || defaultStatus(l);
+}
+function categoryIcon(cat){
+  const map = {
+    "Bluebells & Wild Garlic":"🌸",
+    "Deer & Wildlife":"🦌",
+    "Lone Trees":"🌳",
+    "Tree Tunnels":"🌲",
+    "Churches & Ruins":"🏰",
+    "Coast":"🌊",
+    "Hills & Views":"⛰️",
+    "Future Scouting":"🗺️",
+    "Portfolio Locations":"⭐"
+  };
+  return map[cat] || "📍";
+}
+function locationsForCategory(cat){
+  return locations.filter(l=>{
+    if(cat==="Portfolio Locations") return getLocationStatus(l)==="⭐ Portfolio Location";
+    return getLocationCategory(l)===cat;
+  });
+}
+function renderCategoryBrowser(activeCat=null){
+  const saved = activeCat || localStorage.getItem("pf_active_category") || "Coast";
+  const browser=document.getElementById("categoryBrowser");
+  const results=document.getElementById("categoryResults");
+  if(!browser || !results) return;
+
+  browser.innerHTML = browserCategories.map(cat=>{
+    const count=locationsForCategory(cat).length;
+    const active=cat===saved ? "active" : "";
+    return `<div class="category-card ${active}" onclick="selectCategory('${cat.replace(/'/g,"\\'")}')">
+      <strong>${categoryIcon(cat)} ${cat}</strong>
+      <span>${count} location${count===1?"":"s"}</span>
+    </div>`;
+  }).join("");
+
+  const list=locationsForCategory(saved);
+  results.innerHTML = list.length ? list.map(l=>{
+    const i=locations.indexOf(l);
+    return `<div class="cat-location" onclick="selectLocation(${i})">
+      <strong>${l.name}</strong>
+      <span>${l.region} · ${l.tier} · ${getLocationStatus(l)} · ~${l.driveMin} mins</span>
+    </div>`;
+  }).join("") : `<div class="empty-state">No locations in ${saved} yet. This is ready for future scouting.</div>`;
+}
+function selectCategory(cat){
+  localStorage.setItem("pf_active_category", cat);
+  renderCategoryBrowser(cat);
+}
+
+const checklistItems = [
+  "Confirm parking",
+  "Add What3Words",
+  "Find best viewpoint",
+  "Test best lens / focal length",
+  "Check drone launch spot",
+  "Add access notes",
+  "Add hero image",
+  "Record what worked / failed"
+];
+
+function inferCategory(l){
+  const text = (l.region+" "+l.area+" "+l.dna.join(" ")+" "+l.name).toLowerCase();
+  if(text.includes("bluebell") || text.includes("wild garlic")) return "Bluebells & Wild Garlic";
+  if(text.includes("deer") || text.includes("wildlife")) return "Deer & Wildlife";
+  if(text.includes("church") || text.includes("ruin") || text.includes("abbey") || text.includes("historic")) return "Churches & Ruins";
+  if(text.includes("coast") || text.includes("harbour") || text.includes("cliff") || text.includes("beach") || text.includes("cove") || text.includes("bill")) return "Coast";
+  if(text.includes("hill") || text.includes("views") || text.includes("downland") || text.includes("vale")) return "Hills & Views";
+  if(l.tier==="Future Exploration") return "Future Scouting";
+  return "Locations";
+}
+function defaultStatus(l){
+  if(l.notes && l.notes.toLowerCase().includes("visited")) return "🟡 Scouted";
+  if(l.tier==="Future Exploration") return "🔴 Not Visited";
+  if(l.tier==="Tier 1") return "🟡 Scouted";
+  return "🔴 Not Visited";
+}
+function fieldKey(suffix){ return locKey("pf_field_"+suffix); }
+function checklistKey(){ return locKey("pf_checklist"); }
+
+function renderFieldSystem(){
+  const l=selectedLocation(); if(!l) return;
+  const cat = localStorage.getItem(fieldKey("category")) || inferCategory(l);
+  const stat = localStorage.getItem(fieldKey("status")) || defaultStatus(l);
+  document.getElementById("categorySelect").value = cat;
+  document.getElementById("statusSelect").value = stat;
+  document.getElementById("fieldSaved").textContent="";
+}
+function saveFieldSystem(){
+  if(!selectedLocation()) return;
+  localStorage.setItem(fieldKey("category"), document.getElementById("categorySelect").value);
+  localStorage.setItem(fieldKey("status"), document.getElementById("statusSelect").value);
+  document.getElementById("fieldSaved").textContent="Saved.";
+  renderCategoryBrowser();
+  render();
+}
+function renderChecklist(){
+  const saved = JSON.parse(localStorage.getItem(checklistKey()) || "{}");
+  document.getElementById("nextVisitChecklist").innerHTML = checklistItems.map((item,i)=>{
+    const checked = saved[item] ? "checked" : "";
+    return `<label class="checkitem"><input type="checkbox" data-check="${item}" ${checked}> ${item}</label>`;
+  }).join("");
+  document.getElementById("checkSaved").textContent="";
+}
+function saveChecklist(){
+  if(!selectedLocation()) return;
+  const data = {};
+  document.querySelectorAll("#nextVisitChecklist input[type=checkbox]").forEach(cb=>{ data[cb.dataset.check]=cb.checked; });
+  localStorage.setItem(checklistKey(), JSON.stringify(data));
+  document.getElementById("checkSaved").textContent="Checklist saved.";
+}
+function resetChecklist(){
+  if(!selectedLocation()) return;
+  localStorage.removeItem(checklistKey());
+  renderChecklist();
+}
+
+
+
+let pfCurrentCompositionImage = "";
+let pfEditingCompositionId = "";
+
+function pfCompKey(){
+  const l = selectedLocation();
+  return "pf_compositions_FOR_" + (l ? l.name : "none");
+}
+
+function openCompositionDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open("PhotoForecastCompositionImages",1);
+    req.onupgradeneeded=()=>{ req.result.createObjectStore("compositions"); };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function saveCompositionImageToDB(key,value){
+  const db=await openCompositionDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction("compositions","readwrite");
+    tx.objectStore("compositions").put(value,key);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+async function getCompositionImageFromDB(key){
+  const db=await openCompositionDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction("compositions","readonly");
+    const req=tx.objectStore("compositions").get(key);
+    req.onsuccess=()=>resolve(req.result || "");
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function deleteCompositionImageFromDB(key){
+  const db=await openCompositionDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction("compositions","readwrite");
+    tx.objectStore("compositions").delete(key);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+function compressCompositionImage(file, maxDim=1100, quality=0.72){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error("Could not read image."));
+    reader.onload=(ev)=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error("Could not load image."));
+      img.onload=()=>{
+        const canvas=document.createElement("canvas");
+        const scale=Math.min(1,maxDim/Math.max(img.width,img.height));
+        canvas.width=Math.round(img.width*scale);
+        canvas.height=Math.round(img.height*scale);
+        canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+        resolve(canvas.toDataURL("image/jpeg",quality));
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+async function handleCompositionImageUpload(e){
+  const file=e.target.files[0]; if(!file) return;
+  const saved=document.getElementById("compSaved");
+  if(saved) saved.textContent="Processing image...";
+  try{
+    pfCurrentCompositionImage = await compressCompositionImage(file,1100,0.72);
+    const preview=document.getElementById("compPreview");
+    if(preview) preview.innerHTML=`<img src="${pfCurrentCompositionImage}" alt="Composition preview">`;
+    if(saved) saved.textContent="Image ready. Press Save Composition.";
+  }catch(err){
+    console.error(err);
+    alert("Composition image could not be prepared. Try a smaller screenshot/photo.");
+  }finally{
+    e.target.value="";
+  }
+}
+function getCompositions(){
+  if(!selectedLocation()) return [];
+  return JSON.parse(localStorage.getItem(pfCompKey()) || "[]");
+}
+function saveCompositionList(list){
+  localStorage.setItem(pfCompKey(), JSON.stringify(list));
+}
+async function saveComposition(){
+  if(!selectedLocation()) return;
+
+  const getVal = id => ((document.getElementById(id) || {}).value || "").trim();
+
+  const name = getVal("compName");
+  const status = (document.getElementById("compStatus") || {}).value || "🔴 Planned";
+  const rating = (document.getElementById("compRating") || {}).value || "4";
+  const notes = getVal("compNotes");
+
+  if(!name && !notes && !pfCurrentCompositionImage && !pfEditingCompositionId){
+    alert("Add a name, notes, or image first.");
+    return;
+  }
+
+  const list = getCompositions();
+  const id = pfEditingCompositionId || ("comp_" + Date.now());
+  const existingIndex = list.findIndex(c => c.id === id);
+  const oldItem = existingIndex >= 0 ? list[existingIndex] : {};
+
+  const item = {
+    ...oldItem,
+    id,
+    name: name || oldItem.name || "Untitled composition",
+    status,
+    rating,
+    notes,
+    lens: getVal("compLens"),
+    focal: getVal("compFocal"),
+    aperture: getVal("compAperture"),
+    shutter: getVal("compShutter") || getVal("compExposure"),
+    lessons: getVal("compLessons"),
+    improve: getVal("compImprove"),
+    potential: (document.getElementById("compPotential") || {}).value || oldItem.potential || "5",
+    updated: new Date().toISOString(),
+    created: oldItem.created || new Date().toISOString()
+  };
+
+  if(existingIndex >= 0){
+    list[existingIndex] = item;
+  }else{
+    list.unshift(item);
+  }
+
+  saveCompositionList(list);
+
+  // Preserve existing image unless a new one has been chosen.
+  if(pfCurrentCompositionImage){
+    await saveCompositionImageToDB(locKey("pf_comp_image_"+id), pfCurrentCompositionImage);
+  }
+
+  pfEditingCompositionId = "";
+  pfCurrentCompositionImage = "";
+  clearCompositionForm(false);
+  await renderCompositions();
+
+  const saved = document.getElementById("compSaved");
+  if(saved) saved.textContent = existingIndex >= 0 ? "Composition updated. Form cleared." : "Composition saved. Form cleared.";
+
+  const gallery = document.getElementById("compositionList");
+  if(gallery) gallery.scrollIntoView({behavior:"smooth", block:"start"});
+}
+function clearCompositionForm(clearMessage=true){
+  const ids=["compName","compNotes","compLens","compFocal","compAperture","compShutter","compExposure","compLessons","compImprove"];
+  ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value="";
+  });
+
+  const status=document.getElementById("compStatus");
+  if(status) status.value="🔴 Planned";
+
+  const rating=document.getElementById("compRating");
+  if(rating) rating.value="4";
+
+  const potential=document.getElementById("compPotential");
+  if(potential) potential.value="5";
+
+  const preview=document.getElementById("compPreview");
+  if(preview) preview.innerHTML="Optional composition image / screenshot preview";
+
+  pfCurrentCompositionImage="";
+  pfEditingCompositionId="";
+  const saveBtn=document.getElementById("compSaveBtn");
+  if(saveBtn) saveBtn.textContent="Save Composition";
+  if(clearMessage && document.getElementById("compSaved")) document.getElementById("compSaved").textContent="";
+}
+async function deleteComposition(id){
+  if(!selectedLocation()) return;
+  if(!confirm("Delete this composition idea?")) return;
+  const list=getCompositions().filter(c=>c.id!==id);
+  saveCompositionList(list);
+  await deleteCompositionImageFromDB(locKey("pf_comp_image_"+id));
+  await renderCompositions();
+}
+
+function starsFromRating(rating){
+  const n=Math.max(1,Math.min(5,Number(rating || 4)));
+  return "⭐".repeat(n);
+}
+function progressLabel(status){
+  return status || "🔴 Planned";
+}
+function renderCompositionSummary(list){
+  const el=document.getElementById("compositionSummary");
+  if(!el) return;
+  const total=list.length;
+  const portfolio=list.filter(c=>(c.status||"").includes("Portfolio")).length;
+  const nailed=list.filter(c=>(c.status||"").includes("Nailed")).length;
+  const revisit=list.filter(c=>(c.status||"").includes("Attempted") || (c.status||"").includes("Good")).length;
+  const fiveStar=list.filter(c=>Number(c.rating)===5).length;
+  el.innerHTML = `
+    <div class="comp-stat"><strong>${total}</strong><span>Compositions</span></div>
+    <div class="comp-stat"><strong>${fiveStar}</strong><span>5-star ideas</span></div>
+    <div class="comp-stat"><strong>${revisit}</strong><span>Need refining</span></div>
+    <div class="comp-stat"><strong>${portfolio}</strong><span>Portfolio shots</span></div>
+  `;
+}
+
+
+async function editComposition(id){
+  const list=getCompositions();
+  const c=list.find(x=>x.id===id);
+  if(!c) return;
+  pfEditingCompositionId=id;
+  pfCurrentCompositionImage=""; // important: blank means keep existing image unless a new one is chosen
+
+  const set=(id,val)=>{const el=document.getElementById(id); if(el) el.value=val||"";};
+  set("compName",c.name);
+  set("compNotes",c.notes);
+  set("compLens",c.lens);
+  set("compFocal",c.focal);
+  set("compAperture",c.aperture);
+  set("compExposure",c.shutter);
+  set("compLessons",c.lessons);
+  set("compImprove",c.improve);
+
+  const status=document.getElementById("compStatus");
+  if(status) status.value=c.status || "🔴 Planned";
+  const rating=document.getElementById("compRating");
+  if(rating) rating.value=c.rating || "4";
+  const potential=document.getElementById("compPotential");
+  if(potential) potential.value=c.potential || "5";
+
+  const img=await getCompositionImageFromDB(locKey("pf_comp_image_"+id));
+  const preview=document.getElementById("compPreview");
+  if(preview) preview.innerHTML=img ? `<img src="${img}" alt="Composition preview">` : "Existing image will be preserved unless replaced";
+  const saveBtn=document.getElementById("compSaveBtn");
+  if(saveBtn) saveBtn.textContent="Update Composition";
+  const saved=document.getElementById("compSaved");
+  if(saved) saved.textContent="Editing existing composition. Image will be kept unless you choose a new one.";
+  document.getElementById("compName")?.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+async function duplicateComposition(id){
+  const list=getCompositions();
+  const c=list.find(x=>x.id===id);
+  if(!c) return;
+  const newId="comp_" + Date.now();
+  const copy={...c,id:newId,name:(c.name||"Untitled composition")+" copy",created:new Date().toISOString(),updated:new Date().toISOString()};
+  list.unshift(copy);
+  saveCompositionList(list);
+  const img=await getCompositionImageFromDB(locKey("pf_comp_image_"+id));
+  if(img) await saveCompositionImageToDB(locKey("pf_comp_image_"+newId),img);
+  await renderCompositions();
+}
+
+
+function clearCurrentLocationCompositionsOnly(){
+  if(!confirm("Clear compositions for this selected location only?")) return;
+  localStorage.removeItem(pfCompKey());
+  renderCompositions();
+}
+function clearAllCompositionCardsOnly(){
+  if(!confirm("Clear ALL composition cards from this app copy?")) return;
+  const keys=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k && (k.startsWith("pf_compositions") || k.startsWith("pf_compositions_FOR_"))) keys.push(k);
+  }
+  keys.forEach(k=>localStorage.removeItem(k));
+  renderCompositions();
+}
+
+
+function jumpToComposition(index){
+  const listEl=document.getElementById("compositionList");
+  const card=listEl ? listEl.querySelector(`.comp-card[data-comp-index="${index}"]`) : null;
+  if(card) card.scrollIntoView({behavior:"smooth", inline:"start", block:"nearest"});
+  document.querySelectorAll(".comp-thumb").forEach((b,i)=>b.classList.toggle("active", i===index));
+}
+function updateActiveCompositionThumb(){
+  const listEl=document.getElementById("compositionList");
+  if(!listEl) return;
+  const cards=[...listEl.querySelectorAll(".comp-card")];
+  if(!cards.length) return;
+  let bestIndex=0;
+  let bestDist=Infinity;
+  cards.forEach((card,i)=>{
+    const dist=Math.abs(card.getBoundingClientRect().left - listEl.getBoundingClientRect().left);
+    if(dist<bestDist){bestDist=dist; bestIndex=i;}
+  });
+  document.querySelectorAll(".comp-thumb").forEach((b,i)=>b.classList.toggle("active", i===bestIndex));
+}
+
+async function renderCompositions(){
+  const listEl=document.getElementById("compositionList");
+  if(!listEl) return;
+  const list=getCompositions();
+  renderCompositionSummary(list);
+  if(!list.length){
+    listEl.innerHTML='<div class="comp-empty">No composition ideas saved yet for this location.</div>';
+    return;
+  }
+  let htmlBits=[];
+  for(let i=0; i<list.length; i++){
+    const c=list[i];
+    const img=await getCompositionImageFromDB(locKey("pf_comp_image_"+c.id));
+    htmlBits.push(`<div class="comp-card" data-comp-index="${i}">\n      <div class="comp-index-pill">Composition ${i+1} of ${list.length}</div>
+      <div class="comp-title-row">
+        <strong>${escapeHTML(c.name || "Untitled composition")}</strong>
+        <span class="progress-badge">${escapeHTML(progressLabel(c.status))}</span>
+      </div>
+      <div class="rating-badge">${starsFromRating(c.rating)}</div>\n      <div class="comp-location-badge">📍 ${escapeHTML(selectedLocation()?.name || "Unknown")}</div>
+      <div class="comp-img">${img ? `<img src="${img}" alt="Composition image">` : "No image added"}</div>
+      <div class="comp-small">${c.notes ? escapeHTML(c.notes).replace(/\n/g,"<br>") : "No notes yet."}</div>\n      ${(c.lens||c.focal||c.aperture||c.shutter) ? `<div class="comp-tech"><strong>Technical</strong><br>${escapeHTML(c.lens||"")}<br>${escapeHTML(c.focal||"")} · ${escapeHTML(c.aperture||"")} · ${escapeHTML(c.shutter||"")}</div>` : ""}${c.lens?`<div class="comp-small"><strong>Technical:</strong><br>${escapeHTML(c.lens)}<br>${escapeHTML(c.focal||"")} · ${escapeHTML(c.aperture||"")} · ${escapeHTML(c.shutter||"")}</div>`:""}${c.lessons?`<div class="comp-small"><strong>Lessons:</strong><br>${escapeHTML(c.lessons).replace(/\n/g,"<br>")}</div>`:""}${c.improve?`<div class="comp-small"><strong>Targets:</strong><br>${escapeHTML(c.improve).replace(/\n/g,"<br>")}</div>`:""}${c.potential?`<div class="comp-small"><strong>Potential:</strong> ${"⭐".repeat(Number(c.potential)||0)}</div>`:""}
+      <div class="comp-actions">
+        <button onclick="editComposition('${c.id}')">Edit</button>
+        <button onclick="duplicateComposition('${c.id}')">Duplicate</button>
+        <button onclick="deleteComposition('${c.id}')">Delete</button>
+      </div>
+    </div>`);
+  }
+  listEl.innerHTML=
+    `<div class="comp-nav-header">
+      <strong>${list.length} composition${list.length===1?"":"s"}</strong>
+      <span>Swipe sideways · tap a name to jump</span>
+    </div>
+    <div class="comp-thumb-row">
+      ${list.map((c,i)=>`<button class="comp-thumb ${i===0?"active":""}" onclick="jumpToComposition(${i})">${i+1}. ${escapeHTML(c.name||"Untitled")}</button>`).join("")}
+    </div>` + htmlBits.join("");
+  setTimeout(()=>{ const el=document.getElementById("compositionList"); if(el && !el.dataset.thumbScroll){ el.dataset.thumbScroll="yes"; el.addEventListener("scroll",()=>requestAnimationFrame(updateActiveCompositionThumb)); } },50);
+}
+function escapeHTML(str){
+  return String(str).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+}
+
+
+async function pfDumpStore(dbName, storeName){
+  return new Promise((resolve)=>{
+    const req=indexedDB.open(dbName);
+    req.onerror=()=>resolve({});
+    req.onupgradeneeded=()=>{};
+    req.onsuccess=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains(storeName)){ resolve({}); return; }
+      const tx=db.transaction(storeName,"readonly");
+      const store=tx.objectStore(storeName);
+      const out={};
+      const cursorReq=store.openCursor();
+      cursorReq.onsuccess=(e)=>{
+        const cursor=e.target.result;
+        if(cursor){
+          out[cursor.key]=cursor.value;
+          cursor.continue();
+        }else{
+          resolve(out);
+        }
+      };
+      cursorReq.onerror=()=>resolve(out);
+    };
+  });
+}
+async function pfRestoreStore(dbName, storeName, data){
+  if(!data) return;
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(dbName,1);
+    req.onupgradeneeded=()=>{
+      if(!req.result.objectStoreNames.contains(storeName)){
+        req.result.createObjectStore(storeName);
+      }
+    };
+    req.onerror=()=>reject(req.error);
+    req.onsuccess=()=>{
+      const db=req.result;
+      const tx=db.transaction(storeName,"readwrite");
+      const store=tx.objectStore(storeName);
+      Object.entries(data).forEach(([k,v])=>store.put(v,k));
+      tx.oncomplete=()=>resolve();
+      tx.onerror=()=>reject(tx.error);
+    };
+  });
+}
+async function exportPhotoForecastBackup(){
+  const status=document.getElementById("backupStatus");
+  if(status) status.textContent="Preparing backup...";
+  const localData={};
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(key && (key.startsWith("pf_") || key==="PhotoForecastHeroImages")){
+      localData[key]=localStorage.getItem(key);
+    }
+  }
+  const backup={
+    app:"PhotoForecast",
+    version:"5.2",
+    exportedAt:new Date().toISOString(),
+    localStorage:localData,
+    indexedDB:{
+      heroImages:await pfDumpStore("PhotoForecastHeroImages","heroes"),
+      targetImages:await pfDumpStore("PhotoForecastTargetImages","targets"),
+      compositionImages:await pfDumpStore("PhotoForecastCompositionImages","compositions")
+    }
+  };
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+  a.href=url;
+  a.download=`PhotoForecast_Backup_${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  if(status) status.textContent="Backup exported.";
+}
+
+function pfRepairCompositionDataAfterImport(){
+  try{
+    // Some older builds stored composition data as pf_compositions_<Location Name>.
+    // Make sure those keys are visible to the current selected location renderer.
+    if(typeof locations !== "undefined" && Array.isArray(locations)){
+      locations.forEach(l=>{
+        const oldKey = "pf_compositions_" + l.name;
+        const expectedKey = oldKey; // current locKey("pf_compositions") resolves to this pattern.
+        const oldValue = localStorage.getItem(oldKey);
+        if(oldValue && !localStorage.getItem(expectedKey)){
+          localStorage.setItem(expectedKey, oldValue);
+        }
+      });
+    }
+
+    // Force current location back to a valid saved location after import.
+    const saved = localStorage.getItem("pf_last_location");
+    const idx = saved !== null ? Number(saved) : 0;
+    if(typeof locations !== "undefined" && locations[idx]){
+      const l=locations[idx];
+      const region=document.getElementById("regionSelect");
+      const tier=document.getElementById("tierSelect");
+      const loc=document.getElementById("locationSelect");
+      if(region) region.value=l.region;
+      if(tier) tier.value=l.tier;
+      if(typeof populateLocations==="function") populateLocations(String(idx));
+      if(loc) loc.value=String(idx);
+    }
+
+    if(typeof render==="function") render();
+    if(typeof renderCompositions==="function") renderCompositions();
+    if(typeof renderCategoryBrowser==="function") renderCategoryBrowser();
+  }catch(e){
+    console.error("Composition repair failed", e);
+  }
+}
+
+async function importPhotoForecastBackupFile(file){
+  const status=document.getElementById("backupStatus");
+  if(status) status.textContent="Importing backup...";
+  const text=await file.text();
+  const backup=JSON.parse(text);
+  if(!backup || backup.app!=="PhotoForecast"){
+    alert("That does not look like a PhotoForecast backup file.");
+    if(status) status.textContent="";
+    return;
+  }
+  if(!confirm("Import this backup? It will overwrite matching saved PhotoForecast data in this version.")){
+    if(status) status.textContent="";
+    return;
+  }
+  Object.entries(backup.localStorage || {}).forEach(([k,v])=>localStorage.setItem(k,v));
+  if(backup.indexedDB){
+    await pfRestoreStore("PhotoForecastHeroImages","heroes",backup.indexedDB.heroImages || {});
+    await pfRestoreStore("PhotoForecastTargetImages","targets",backup.indexedDB.targetImages || {});
+    await pfRestoreStore("PhotoForecastCompositionImages","compositions",backup.indexedDB.compositionImages || {});
+  }
+  pfRepairCompositionDataAfterImport();
+  if(status) status.textContent="Backup imported. Reloading...";
+  setTimeout(()=>location.reload(),600);
+}
+function clearPhotoForecastData(){
+  if(!confirm("Clear all saved PhotoForecast data in this file? This cannot be undone unless you have exported a backup.")) return;
+  const keys=[];
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(key && key.startsWith("pf_")) keys.push(key);
+  }
+  keys.forEach(k=>localStorage.removeItem(k));
+  indexedDB.deleteDatabase("PhotoForecastHeroImages");
+  indexedDB.deleteDatabase("PhotoForecastTargetImages");
+  indexedDB.deleteDatabase("PhotoForecastCompositionImages");
+  alert("Saved PhotoForecast data cleared. The app will reload.");
+  location.reload();
+}
+
+function init(){
+  const rs=document.getElementById("regionSelect");
+  if(!rs) return;
+  rs.innerHTML="";
+  regionList().forEach(r=>{
+    const o=document.createElement("option");
+    o.value=r;
+    o.textContent=r;
+    rs.appendChild(o);
+  });
+
+  const savedRegion = localStorage.getItem("pf_last_region");
+  const savedTier = localStorage.getItem("pf_last_tier");
+  const savedLocation = localStorage.getItem("pf_last_location");
+
+  if(savedRegion && [...rs.options].some(o=>o.value===savedRegion)){
+    rs.value = savedRegion;
+  } else if([...rs.options].some(o=>o.value==="Dorset")){
+    rs.value = "Dorset";
+  }
+
+  const tierSelect=document.getElementById("tierSelect");
+  if(tierSelect) tierSelect.value = savedTier || "Tier 1";
+
+  ["regionSelect","tierSelect"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener("change",()=>{
+      localStorage.setItem("pf_last_region", document.getElementById("regionSelect").value);
+      localStorage.setItem("pf_last_tier", document.getElementById("tierSelect").value);
+    
+  const backupImportInput=document.getElementById("backupImportInput");
+  if(backupImportInput) backupImportInput.addEventListener("change",async (e)=>{
+    const file=e.target.files[0];
+    if(file) await importPhotoForecastBackupFile(file);
+    e.target.value="";
+  });
+
+  populateLocations();
+      render();
+    });
+  });
+
+  const locationSelect=document.getElementById("locationSelect");
+  if(locationSelect) locationSelect.addEventListener("change",()=>{
+    localStorage.setItem("pf_last_location", locationSelect.value);
+    render();
+  });
+
+  ["dashTime","dashRange"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener("change",render);
+  });
+
+  const visitDate=document.getElementById("visitDate");
+  if(visitDate) visitDate.valueAsDate = new Date();
+
+  
+  const compInput=document.getElementById("compInput");
+  if(compInput) compInput.addEventListener("change",handleCompositionImageUpload);
+
+  const heroInput=document.getElementById("heroInput");
+  if(heroInput) heroInput.addEventListener("change",handleHeroUpload);
+
+  const targetInput=document.getElementById("targetInput");
+  if(targetInput) targetInput.addEventListener("change",handleTargetImageUpload);
+
+  const galleryInput=document.getElementById("galleryInput");
+  if(galleryInput) galleryInput.addEventListener("change",handleGalleryUpload);
+
+  ["parkingPostcode","w3wText","parkingNotes"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener("input",updateMapLink);
+  });
+
+  ["categorySelect","statusSelect"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener("change",saveFieldSystem);
+  });
+
+  const searchBox=document.getElementById("locationSearch");
+  if(searchBox){
+    searchBox.addEventListener("input",pfRenderSearchResults);
+    searchBox.addEventListener("keyup",pfRenderSearchResults);
+  }
+
+
+  const backupImportInput=document.getElementById("backupImportInput");
+  if(backupImportInput) backupImportInput.addEventListener("change",async (e)=>{
+    const file=e.target.files[0];
+    if(file) await importPhotoForecastBackupFile(file);
+    e.target.value="";
+  });
+
+  populateLocations(savedLocation);
+  render();
+}
+
+
+function populateLocations(preferredValue=null){
+  const reg=document.getElementById("regionSelect").value || "All regions";
+  const tier=document.getElementById("tierSelect").value || "Tier 1";
+  const ls=document.getElementById("locationSelect");
+  const old=preferredValue ?? ls.value;
+  ls.innerHTML="";
+  locations.forEach((l,i)=>{
+    if(reg!=="All regions" && l.region!==reg) return;
+    if(l.tier!==tier) return;
+    const o=document.createElement("option");
+    o.value=String(i);
+    o.textContent=l.name;
+    ls.appendChild(o);
+  });
+  if([...ls.options].some(o=>o.value===String(old))){
+    ls.value=String(old);
+  } else if(ls.options.length){
+    ls.value=ls.options[0].value;
+  }
+  if(ls.value){
+    localStorage.setItem("pf_last_location", ls.value);
+  }
+}
+function selectedLocation(){
+  const ls=document.getElementById("locationSelect");
+  if(!ls.value || !ls.options.length) return null;
+  return locations[Number(ls.value)];
+}
+function locKey(prefix){
+  const l = selectedLocation();
+  return prefix + "_" + (l ? l.name : "none");
+}
+
+
+let pfWeatherRequestId = 0;
+
+const pfKnownWeatherCoords = {
+  "Martinsell Hill": {lat:51.366, lon:-1.765, label:"Martinsell Hill"},
+  "Savernake Forest": {lat:51.401, lon:-1.693, label:"Savernake Forest"},
+  "Avebury": {lat:51.428, lon:-1.854, label:"Avebury"},
+  "Stonehenge": {lat:51.1789, lon:-1.8262, label:"Stonehenge"},
+  "Alton Barnes White Horse": {lat:51.376, lon:-1.848, label:"Alton Barnes White Horse"},
+  "Milk Hill": {lat:51.374, lon:-1.857, label:"Milk Hill"},
+  "Pewsey Vale": {lat:51.337, lon:-1.765, label:"Pewsey Vale"},
+
+  "St Martha's Church": {lat:51.225, lon:-0.528, label:"St Martha's Church"},
+  "Thursley Common": {lat:51.154, lon:-0.706, label:"Thursley Common"},
+  "Fleet Pond": {lat:51.293, lon:-0.842, label:"Fleet Pond"},
+  "Frensham Great Pond": {lat:51.162, lon:-0.789, label:"Frensham Great Pond"},
+  "Waverley Abbey": {lat:51.195, lon:-0.767, label:"Waverley Abbey"},
+  "Newlands Corner": {lat:51.232, lon:-0.507, label:"Newlands Corner"},
+  "Leith Hill": {lat:51.176, lon:-0.370, label:"Leith Hill"},
+
+  "Old Harry Rocks": {lat:50.642, lon:-1.924, label:"Old Harry Rocks"},
+  "Portland Bill": {lat:50.514, lon:-2.457, label:"Portland Bill"},
+  "Knowlton Church": {lat:50.883, lon:-1.963, label:"Knowlton Church"},
+  "Colmer's Hill": {lat:50.735, lon:-2.768, label:"Colmer's Hill"},
+  "Win Green Hill": {lat:50.976, lon:-2.056, label:"Win Green Hill"},
+  "Eggardon Hill": {lat:50.759, lon:-2.661, label:"Eggardon Hill"},
+  "Hambledon Hill": {lat:50.916, lon:-2.219, label:"Hambledon Hill"},
+  "Abbotsbury": {lat:50.666, lon:-2.599, label:"Abbotsbury"},
+  "St Aldhelm's Head": {lat:50.577, lon:-2.056, label:"St Aldhelm's Head"},
+  "Lyme Regis": {lat:50.725, lon:-2.934, label:"Lyme Regis"},
+  "Chapman's Pool": {lat:50.602, lon:-2.040, label:"Chapman's Pool"},
+  "Gold Hill": {lat:51.005, lon:-2.197, label:"Gold Hill"},
+  "Horton Tower": {lat:50.869, lon:-1.954, label:"Horton Tower"},
+  "West Bay": {lat:50.713, lon:-2.762, label:"West Bay"},
+  "Badbury Rings & Beech Avenue": {lat:50.829, lon:-2.046, label:"Badbury Rings"},
+  "Sturminster Newton": {lat:50.926, lon:-2.305, label:"Sturminster Newton"},
+  "Spetisbury / River Stour": {lat:50.823, lon:-2.126, label:"Spetisbury"},
+  "Bourley Lakes": {lat:51.276, lon:-0.787, label:"Bourley Lakes"},
+  "Old Winchester Hill": {lat:50.971, lon:-1.089, label:"Old Winchester Hill"},
+  "Zebon Copse": {lat:51.269, lon:-0.846, label:"Zebon Copse"},
+  "Durdle Door": {lat:50.621, lon:-2.276, label:"Durdle Door"},
+  "Corfe Castle": {lat:50.639, lon:-2.058, label:"Corfe Castle"},
+  "Kimmeridge Bay": {lat:50.61, lon:-2.126, label:"Kimmeridge Bay"},
+  "Dancing Ledge": {lat:50.59, lon:-1.97, label:"Dancing Ledge"},
+  "Swanage Head": {lat:50.608, lon:-1.949, label:"Swanage Head"},
+  "Mupe Bay": {lat:50.623, lon:-2.245, label:"Mupe Bay"},
+  "Tyneham Village": {lat:50.623, lon:-2.168, label:"Tyneham Village"},
+  "Worbarrow Bay": {lat:50.62, lon:-2.185, label:"Worbarrow Bay"},
+  "Ringstead Bay": {lat:50.633, lon:-2.354, label:"Ringstead Bay"},
+  "The Dutch Barn": {lat:50.958672, lon:-1.970483, label:"The Dutch Barn"},
+};
+
+function pfWeatherStatus(text){
+  const el = document.getElementById("weatherStatus");
+  if(el) el.textContent = text;
+}
+
+function pfClearWeather(){
+  ["weatherTemp","weatherCloud","weatherWindSpeed","weatherWindDir","weatherRain","weatherVisibility","weatherSunrise","weatherSunset","weatherMorningGolden","weatherEveningGolden","weatherMorningBlue","weatherEveningBlue"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent="—";
+  });
+}
+
+function pfWindDirection(deg){
+  const dirs=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+  return dirs[Math.round(Number(deg)/22.5)%16];
+}
+
+
+function pfFormatTime(isoString){
+  if(!isoString) return "—";
+  try{
+    return new Date(isoString).toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
+  }catch(e){
+    return "—";
+  }
+}
+
+
+function pfAddMinutes(isoString, mins){
+  if(!isoString) return null;
+  return new Date(new Date(isoString).getTime() + mins * 60000);
+}
+function pfFormatDateTime(dt){
+  if(!dt) return "—";
+  try{
+    return dt.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
+  }catch(e){
+    return "—";
+  }
+}
+function pfTimeRange(startDt, endDt){
+  if(!startDt || !endDt) return "—";
+  return `${pfFormatDateTime(startDt)} – ${pfFormatDateTime(endDt)}`;
+}
+function pfRenderLightWindows(sunriseIso, sunsetIso){
+  const mg = document.getElementById("weatherMorningGolden");
+  const eg = document.getElementById("weatherEveningGolden");
+  const mb = document.getElementById("weatherMorningBlue");
+  const eb = document.getElementById("weatherEveningBlue");
+
+  if(mg) mg.textContent = pfTimeRange(pfAddMinutes(sunriseIso, 0), pfAddMinutes(sunriseIso, 60));
+  if(eg) eg.textContent = pfTimeRange(pfAddMinutes(sunsetIso, -60), pfAddMinutes(sunsetIso, 0));
+  if(mb) mb.textContent = pfTimeRange(pfAddMinutes(sunriseIso, -30), pfAddMinutes(sunriseIso, 0));
+  if(eb) eb.textContent = pfTimeRange(pfAddMinutes(sunsetIso, 0), pfAddMinutes(sunsetIso, 30));
+}
+
+function pfVisibilityLabel(km){
+  if(km === null || km === undefined || isNaN(km)) return "—";
+  if(km >= 30) return `Excellent (${km.toFixed(0)} km)`;
+  if(km >= 15) return `Good (${km.toFixed(0)} km)`;
+  if(km >= 5) return `Moderate (${km.toFixed(0)} km)`;
+  return `Poor (${km.toFixed(1)} km)`;
+}
+
+function pfPhotographyWeatherSummary(current, rainPercent, visibilityKm, location){
+  const lines = [];
+  const cloud = Number(current.cloud_cover);
+  const wind = Number(current.wind_speed_10m);
+
+  if(!isNaN(cloud)){
+    if(cloud >= 35 && cloud <= 75) lines.push("🟢 Cloud cover has good potential for colour and texture.");
+  }
+  if(!isNaN(cloud) && cloud < 20) lines.push("🟡 Low cloud cover: clean light, but sky drama may be limited.");
+  if(!isNaN(cloud) && cloud > 85) lines.push("🟡 Heavy cloud: good for woodland/detail work, weaker for sunrise/sunset colour.");
+
+  if(!isNaN(wind)){
+    if(wind <= 10) lines.push("🟢 Wind is comfortable for tripod work and possible drone use.");
+    else if(wind <= 18) lines.push("🟡 Moderate wind: fine for tripod work, check drone conditions carefully.");
+    else lines.push("🔴 Stronger wind: be cautious with long lenses, tripod shake and drone flying.");
+  }
+
+  if(rainPercent !== null && rainPercent !== undefined && !isNaN(rainPercent)){
+    if(rainPercent <= 15) lines.push("🟢 Low rain risk.");
+    else if(rainPercent <= 45) lines.push("🟡 Some rain risk: possible atmosphere, but pack waterproofs.");
+    else lines.push("🔴 High rain risk: only worth it if you want storm light or mood.");
+  }
+
+  if(visibilityKm !== null && visibilityKm !== undefined && !isNaN(visibilityKm)){
+    if(visibilityKm >= 25) lines.push("🟢 Excellent visibility for distant layers and telephoto views.");
+    else if(visibilityKm >= 8) lines.push("🟡 Moderate visibility: good for atmosphere and depth.");
+    else lines.push("🟢 Low visibility may help mist/fog style compositions.");
+  }
+
+  if(location && /Portland|Old Harry|St Aldhelm|West Bay|Lyme|Chapman/i.test(location.name || "")){
+    lines.push("🌊 Coastal note: check tide and sea state before committing.");
+  }
+  if(location && /Martinsell|Pewsey|Milk Hill|Win Green|Leith|Newlands|Thursley|Fleet|Frensham/i.test(location.name || "")){
+    lines.push(pfFogSummaryLine(current, visibilityKm, location));
+  }
+
+  if(location && !/Martinsell|Pewsey|Milk Hill|Win Green|Leith|Newlands|Thursley|Fleet|Frensham/i.test(location.name || "")){
+    const fog = pfFogChance(current, visibilityKm);
+    if(fog.label !== "Low") lines.push(pfFogSummaryLine(current, visibilityKm, location));
+  }
+  if(!lines.length) lines.push("Weather loaded. Conditions look neutral.");
+  return lines.map(x=>`<span class="photo-weather-line">${x}</span>`).join("");
+}
+
+
+
+function pfMinutesFromHHMM(text){
+  if(!text || text === "—") return null;
+  const parts = String(text).split(":");
+  if(parts.length < 2) return null;
+  return Number(parts[0]) * 60 + Number(parts[1]);
+}
+
+function pfCurrentMinutes(){
+  const d = new Date();
+  return d.getHours() * 60 + d.getMinutes();
+}
+
+function pfGetDisplayedLightMinutes(){
+  const sunriseEl = document.getElementById("weatherSunrise");
+  const sunsetEl = document.getElementById("weatherSunset");
+  return {
+    sunrise: sunriseEl ? pfMinutesFromHHMM(sunriseEl.textContent) : null,
+    sunset: sunsetEl ? pfMinutesFromHHMM(sunsetEl.textContent) : null
+  };
+}
+
+function pfTimeAwareTitle(score){
+  const now = pfCurrentMinutes();
+  const light = pfGetDisplayedLightMinutes();
+  const sunrise = light.sunrise;
+  const sunset = light.sunset;
+
+  if(sunrise === null || sunset === null){
+    if(score >= 9) return "Strong option.";
+    if(score >= 8) return "Worth a look.";
+    if(score >= 7) return "Could work.";
+    return "Low priority today.";
+  }
+
+  if(now >= sunrise - 120 && now < sunrise - 20){
+    return score >= 7.5 ? "Get out of bed." : "Morning possible.";
+  }
+  if(now >= sunrise - 20 && now <= sunrise + 75){
+    return score >= 7 ? "Shoot it now." : "Morning light only.";
+  }
+  if(now > sunrise + 75 && now < sunset - 150){
+    return score >= 8 ? "Scout it now." : "Wait for better light.";
+  }
+  if(now >= sunset - 150 && now < sunset - 20){
+    return score >= 7.5 ? "Strong sunset option." : "Sunset maybe.";
+  }
+  if(now >= sunset - 20 && now <= sunset + 35){
+    return score >= 7 ? "Shoot the sunset now." : "Blue hour maybe.";
+  }
+  if(now > sunset + 35){
+    return score >= 8 ? "Check tomorrow sunrise." : "Plan tomorrow.";
+  }
+
+  return score >= 8 ? "Strong option." : "Worth checking.";
+}
+
+function pfFogChance(current, visibilityKm){
+  const temp = Number(current.temperature_2m);
+  const dew = Number(current.dew_point_2m);
+  const humidity = Number(current.relative_humidity_2m);
+  const wind = Number(current.wind_speed_10m);
+  const cloud = Number(current.cloud_cover);
+
+  let points = 0;
+  const reasons = [];
+
+  if(!isNaN(temp) && !isNaN(dew)){
+    const spread = temp - dew;
+    if(spread <= 1.0){ points += 3; reasons.push("temperature close to dew point"); }
+    else if(spread <= 2.0){ points += 2; reasons.push("dew point spread fairly close"); }
+    else if(spread <= 3.5){ points += 1; reasons.push("some moisture potential"); }
+    else { reasons.push("dew point spread too wide"); }
+  }
+
+  if(!isNaN(humidity)){
+    if(humidity >= 95){ points += 3; reasons.push("very high humidity"); }
+    else if(humidity >= 88){ points += 2; reasons.push("high humidity"); }
+    else if(humidity >= 80){ points += 1; reasons.push("moderate humidity"); }
+  }
+
+  if(!isNaN(wind)){
+    if(wind <= 5){ points += 2; reasons.push("light wind"); }
+    else if(wind <= 9){ points += 1; reasons.push("manageable wind"); }
+    else { points -= 1; reasons.push("wind may mix the air"); }
+  }
+
+  if(!isNaN(cloud)){
+    if(cloud <= 45){ points += 1; reasons.push("enough sky clearance for cooling"); }
+    else if(cloud >= 85){ points -= 1; reasons.push("heavy cloud may limit cooling"); }
+  }
+
+  if(visibilityKm !== null && visibilityKm !== undefined && !isNaN(visibilityKm)){
+    if(visibilityKm < 2){ points += 3; reasons.push("visibility already very low"); }
+    else if(visibilityKm < 8){ points += 2; reasons.push("visibility already reduced"); }
+    else if(visibilityKm < 15){ points += 1; reasons.push("some haze present"); }
+  }
+
+  let label = "Low";
+  if(points >= 7) label = "High";
+  else if(points >= 4) label = "Moderate";
+
+  return {label, points, reasons};
+}
+
+function pfFogSummaryLine(current, visibilityKm, location){
+  const name = (location && location.name) ? location.name : "";
+  const works = (location && location.worksBest) ? location.worksBest.join(" ").toLowerCase() : "";
+  const fogRelevant = /Martinsell|Pewsey|Milk Hill|Win Green|Leith|Newlands|Thursley|Fleet|Frensham/i.test(name) || works.includes("fog") || works.includes("mist");
+
+  const fog = pfFogChance(current, visibilityKm);
+  let icon = "🔴";
+  if(fog.label === "High") icon = "🟢";
+  else if(fog.label === "Moderate") icon = "🟡";
+
+  const reason = fog.reasons.length ? ` ${fog.reasons.slice(0,2).join(", ")}.` : "";
+  if(fogRelevant){
+    return `<span class="photo-weather-line">${icon} Fog chance: ${fog.label}.${reason}</span>`;
+  }
+  return `<span class="photo-weather-line">${icon} Fog chance nearby: ${fog.label}.${reason}</span>`;
+}
+
+function pfDynamicPhotoScore(current, rainPercent, visibilityKm, location){
+  let score = 6.5;
+  const reasons = [];
+  const cloud = Number(current.cloud_cover);
+  const wind = Number(current.wind_speed_10m);
+
+  if(!isNaN(cloud)){
+    if(cloud >= 30 && cloud <= 75){
+      score += 1.2;
+      reasons.push("good cloud texture");
+    }else if(cloud < 15){
+      score -= 0.7;
+      reasons.push("sky may be too clear");
+    }else if(cloud > 90){
+      score -= 0.8;
+      reasons.push("heavy cloud may flatten the light");
+    }else{
+      score += 0.3;
+      reasons.push("usable cloud cover");
+    }
+  }
+
+  if(!isNaN(wind)){
+    if(wind <= 8){
+      score += 0.8;
+      reasons.push("calm wind");
+    }else if(wind <= 18){
+      score += 0.1;
+      reasons.push("manageable wind");
+    }else{
+      score -= 0.9;
+      reasons.push("wind is becoming a limitation");
+    }
+  }
+
+  if(rainPercent !== null && rainPercent !== undefined && !isNaN(rainPercent)){
+    if(rainPercent <= 15){
+      score += 0.7;
+      reasons.push("low rain risk");
+    }else if(rainPercent <= 45){
+      score += 0.1;
+      reasons.push("some atmosphere possible");
+    }else{
+      score -= 0.8;
+      reasons.push("rain risk is high");
+    }
+  }
+
+  if(visibilityKm !== null && visibilityKm !== undefined && !isNaN(visibilityKm)){
+    if(visibilityKm >= 25){
+      score += 0.7;
+      reasons.push("excellent visibility");
+    }else if(visibilityKm >= 8){
+      score += 0.3;
+      reasons.push("atmospheric visibility");
+    }else{
+      score += 0.5;
+      reasons.push("mist/fog potential");
+    }
+  }
+
+  const name = (location && location.name) ? location.name : "";
+  const works = (location && location.worksBest) ? location.worksBest.join(" ").toLowerCase() : "";
+  const isCoast = /Portland|Old Harry|St Aldhelm|West Bay|Lyme|Chapman/i.test(name);
+  const isHillMist = /Martinsell|Pewsey|Milk Hill|Win Green|Leith|Newlands/i.test(name) || works.includes("mist");
+
+  if(isCoast){
+    if(!isNaN(wind) && wind >= 10 && wind <= 22){
+      score += 0.4;
+      reasons.push("coastal movement/drama");
+    }
+    if(!isNaN(wind) && wind > 24){
+      score -= 0.4;
+      reasons.push("coastal wind may be too strong");
+    }
+  }
+
+  if(isHillMist){
+    if(visibilityKm !== null && visibilityKm < 12){
+      score += 0.8;
+      reasons.push("valley atmosphere potential");
+    }
+    if(!isNaN(wind) && wind <= 8){
+      score += 0.4;
+      reasons.push("mist-friendly low wind");
+    }
+  }
+
+  score = Math.max(1, Math.min(10, score));
+
+  let title = pfTimeAwareTitle(score);
+
+  return {
+    score,
+    title,
+    copy: reasons.length ? `Live score: ${reasons.slice(0,4).join(", ")}.` : "Live weather score calculated from current conditions."
+  };
+}
+
+function pfApplyDynamicScore(current, rainPercent, visibilityKm, location){
+  const result = pfDynamicPhotoScore(current, rainPercent, visibilityKm, location);
+  const scoreBox = document.getElementById("scoreBox");
+  const scoreTitle = document.getElementById("scoreTitle");
+  const scoreCopy = document.getElementById("scoreCopy");
+  if(scoreBox) scoreBox.textContent = result.score.toFixed(1);
+  if(scoreTitle) scoreTitle.textContent = result.title;
+  if(scoreCopy) scoreCopy.textContent = result.copy;
+}
+
+
+function pfNearestHourlyIndex(hourly, targetIso){
+  if(!hourly || !Array.isArray(hourly.time) || !hourly.time.length || !targetIso) return 0;
+  const target = new Date(targetIso).getTime();
+  let best = Infinity;
+  let bestIndex = 0;
+  hourly.time.forEach((t,i)=>{
+    const d = Math.abs(new Date(t).getTime() - target);
+    if(d < best){ best = d; bestIndex = i; }
+  });
+  return bestIndex;
+}
+
+function pfHourlyValue(hourly, key, index){
+  if(!hourly || !Array.isArray(hourly[key])) return null;
+  const v = hourly[key][index];
+  return v === undefined ? null : Number(v);
+}
+
+function pfScoreForecastMoment(weather, location){
+  let score = 6.2;
+  const reasons = [];
+
+  const cloud = Number(weather.cloud);
+  const wind = Number(weather.wind);
+  const rain = Number(weather.rain);
+  const visKm = Number(weather.visibilityKm);
+  const humidity = Number(weather.humidity);
+  const temp = Number(weather.temp);
+  const dew = Number(weather.dew);
+
+  if(!isNaN(cloud)){
+    if(cloud >= 35 && cloud <= 75){ score += 1.4; reasons.push("good cloud texture"); }
+    else if(cloud < 18){ score -= 0.8; reasons.push("sky may be too clear"); }
+    else if(cloud > 90){ score -= 0.9; reasons.push("heavy cloud may flatten the light"); }
+    else { score += 0.3; reasons.push("usable cloud cover"); }
+  }
+
+  if(!isNaN(wind)){
+    if(wind <= 7){ score += 0.8; reasons.push("light wind"); }
+    else if(wind <= 17){ score += 0.2; reasons.push("manageable wind"); }
+    else { score -= 0.8; reasons.push("wind may be a limitation"); }
+  }
+
+  if(!isNaN(rain)){
+    if(rain <= 15){ score += 0.7; reasons.push("low rain risk"); }
+    else if(rain <= 45){ score += 0.1; reasons.push("some rain risk"); }
+    else { score -= 1.0; reasons.push("high rain risk"); }
+  }
+
+  if(!isNaN(visKm)){
+    if(visKm >= 25){ score += 0.6; reasons.push("excellent visibility"); }
+    else if(visKm >= 8){ score += 0.3; reasons.push("atmosphere possible"); }
+    else { score += 0.6; reasons.push("misty visibility"); }
+  }
+
+  const name = location && location.name ? location.name : "";
+  const isHill = /Martinsell|Pewsey|Milk Hill|Win Green|Leith|Newlands|Thursley|Fleet|Frensham/i.test(name);
+  if(isHill && !isNaN(temp) && !isNaN(dew) && (temp - dew) <= 2.0 && !isNaN(wind) && wind <= 8){
+    score += 0.8;
+    reasons.push("fog/mist potential");
+  }
+
+  score = Math.max(1, Math.min(10, score));
+  return {score, reasons};
+}
+
+function pfTomorrowVerdict(score){
+  if(score >= 9) return "Excellent potential.";
+  if(score >= 8) return "Strong option.";
+  if(score >= 7) return "Worth considering.";
+  if(score >= 6) return "Possible, but not prime.";
+  return "Low priority.";
+}
+
+function pfSetTomorrowUnavailable(){
+  const ids = ["tomSunriseScore","tomSunsetScore","tomFogScore"];
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent="—"; });
+  const h=document.getElementById("tomorrowHeadline");
+  const s=document.getElementById("tomorrowSummary");
+  if(h) h.textContent="Tomorrow forecast unavailable.";
+  if(s) s.textContent="Forecast data could not be loaded for this location.";
+  ["tomSunriseText","tomSunsetText","tomFogText"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent="Unavailable.";
+  });
+}
+
+function pfUpdateTomorrowPlanner(data, location){
+  try{
+    const daily = data.daily || {};
+    const hourly = data.hourly || {};
+    if(!daily.sunrise || daily.sunrise.length < 2 || !daily.sunset || daily.sunset.length < 2){
+      pfSetTomorrowUnavailable();
+      return;
+    }
+
+    const sunriseIso = daily.sunrise[1];
+    const sunsetIso = daily.sunset[1];
+
+    const sunriseIndex = pfNearestHourlyIndex(hourly, sunriseIso);
+    const sunsetIndex = pfNearestHourlyIndex(hourly, sunsetIso);
+
+    const sunriseWeather = {
+      cloud: pfHourlyValue(hourly, "cloud_cover", sunriseIndex),
+      wind: pfHourlyValue(hourly, "wind_speed_10m", sunriseIndex),
+      rain: pfHourlyValue(hourly, "precipitation_probability", sunriseIndex),
+      visibilityKm: pfHourlyValue(hourly, "visibility", sunriseIndex) !== null ? pfHourlyValue(hourly, "visibility", sunriseIndex) / 1000 : null,
+      humidity: pfHourlyValue(hourly, "relative_humidity_2m", sunriseIndex),
+      temp: pfHourlyValue(hourly, "temperature_2m", sunriseIndex),
+      dew: pfHourlyValue(hourly, "dew_point_2m", sunriseIndex)
+    };
+
+    const sunsetWeather = {
+      cloud: pfHourlyValue(hourly, "cloud_cover", sunsetIndex),
+      wind: pfHourlyValue(hourly, "wind_speed_10m", sunsetIndex),
+      rain: pfHourlyValue(hourly, "precipitation_probability", sunsetIndex),
+      visibilityKm: pfHourlyValue(hourly, "visibility", sunsetIndex) !== null ? pfHourlyValue(hourly, "visibility", sunsetIndex) / 1000 : null,
+      humidity: pfHourlyValue(hourly, "relative_humidity_2m", sunsetIndex),
+      temp: pfHourlyValue(hourly, "temperature_2m", sunsetIndex),
+      dew: pfHourlyValue(hourly, "dew_point_2m", sunsetIndex)
+    };
+
+    const sunriseScore = pfScoreForecastMoment(sunriseWeather, location);
+    const sunsetScore = pfScoreForecastMoment(sunsetWeather, location);
+
+    const fog = pfFogChance({
+      temperature_2m: sunriseWeather.temp,
+      dew_point_2m: sunriseWeather.dew,
+      relative_humidity_2m: sunriseWeather.humidity,
+      wind_speed_10m: sunriseWeather.wind,
+      cloud_cover: sunriseWeather.cloud
+    }, sunriseWeather.visibilityKm);
+
+    const srEl=document.getElementById("tomSunriseScore");
+    const ssEl=document.getElementById("tomSunsetScore");
+    const fogEl=document.getElementById("tomFogScore");
+    if(srEl) srEl.textContent=sunriseScore.score.toFixed(1);
+    if(ssEl) ssEl.textContent=sunsetScore.score.toFixed(1);
+    if(fogEl) fogEl.textContent=fog.label;
+
+    const srText=document.getElementById("tomSunriseText");
+    const ssText=document.getElementById("tomSunsetText");
+    const fogText=document.getElementById("tomFogText");
+
+    if(srText) srText.textContent=`${pfTomorrowVerdict(sunriseScore.score)} ${sunriseScore.reasons.slice(0,3).join(", ")}.`;
+    if(ssText) ssText.textContent=`${pfTomorrowVerdict(sunsetScore.score)} ${sunsetScore.reasons.slice(0,3).join(", ")}.`;
+    if(fogText) fogText.textContent=`Based on tomorrow sunrise humidity, dew point, wind and visibility.`;
+
+    const headline=document.getElementById("tomorrowHeadline");
+    const summary=document.getElementById("tomorrowSummary");
+    const best = sunriseScore.score >= sunsetScore.score ? "sunrise" : "sunset";
+    const bestScore = Math.max(sunriseScore.score, sunsetScore.score);
+
+    if(headline) headline.textContent = `Best tomorrow: ${best} (${bestScore.toFixed(1)}/10)`;
+    if(summary) summary.textContent = `${location.name}: sunrise ${sunriseScore.score.toFixed(1)}, sunset ${sunsetScore.score.toFixed(1)}, fog chance ${fog.label}.`;
+  }catch(e){
+    console.warn("Tomorrow planner failed", e);
+    pfSetTomorrowUnavailable();
+  }
+}
+
+function pfGetNearestHourlyIndex(hourly){
+  if(!hourly || !Array.isArray(hourly.time) || !hourly.time.length) return 0;
+  const now = Date.now();
+  let best = 0;
+  let bestDiff = Infinity;
+  hourly.time.forEach((t,i)=>{
+    const ts = new Date(t).getTime();
+    if(!isNaN(ts)){
+      const d = Math.abs(ts - now);
+      if(d < bestDiff){ bestDiff = d; best = i; }
+    }
+  });
+  return best;
+}
+
+function pfBuildCurrentFromHourly(data){
+  const hourly = data.hourly || {};
+  const i = pfGetNearestHourlyIndex(hourly);
+  function hv(key){
+    if(!Array.isArray(hourly[key])) return undefined;
+    const v = hourly[key][i];
+    return v === null || v === undefined ? undefined : Number(v);
+  }
+  return {
+    temperature_2m: hv("temperature_2m"),
+    relative_humidity_2m: hv("relative_humidity_2m"),
+    dew_point_2m: hv("dew_point_2m"),
+    cloud_cover: hv("cloud_cover"),
+    wind_speed_10m: hv("wind_speed_10m"),
+    wind_direction_10m: hv("wind_direction_10m"),
+    precipitation_probability: hv("precipitation_probability"),
+    visibility: hv("visibility"),
+    time: Array.isArray(hourly.time) ? hourly.time[i] : null
+  };
+}
+
+function pfDisplayWeather(data, label){
+  const hourly=data.hourly || {};
+  const current=(data.current && Object.keys(data.current).length) ? data.current : pfBuildCurrentFromHourly(data);
+  const hourlyIndex = pfGetNearestHourlyIndex(hourly);
+  let rain="—";
+  let vis="—";
+
+  const rainVal = current.precipitation_probability !== undefined
+    ? Number(current.precipitation_probability)
+    : (Array.isArray(hourly.precipitation_probability) ? Number(hourly.precipitation_probability[hourlyIndex]) : NaN);
+  if(!isNaN(rainVal)) rain = `${Math.round(rainVal)}%`;
+
+  const visVal = current.visibility !== undefined
+    ? Number(current.visibility)
+    : (Array.isArray(hourly.visibility) ? Number(hourly.visibility[hourlyIndex]) : NaN);
+  if(!isNaN(visVal)) vis = pfVisibilityLabel(visVal/1000);
+
+  document.getElementById("weatherTemp").textContent = current.temperature_2m !== undefined && !isNaN(Number(current.temperature_2m)) ? `${Math.round(Number(current.temperature_2m))}°C` : "—";
+  document.getElementById("weatherCloud").textContent = current.cloud_cover !== undefined && !isNaN(Number(current.cloud_cover)) ? `${Math.round(Number(current.cloud_cover))}%` : "—";
+  document.getElementById("weatherWindSpeed").textContent = current.wind_speed_10m !== undefined && !isNaN(Number(current.wind_speed_10m)) ? `${Math.round(Number(current.wind_speed_10m))} mph` : "—";
+  document.getElementById("weatherWindDir").textContent = current.wind_direction_10m !== undefined && !isNaN(Number(current.wind_direction_10m)) ? `${pfWindDirection(Number(current.wind_direction_10m))} ${Math.round(Number(current.wind_direction_10m))}°` : "—";
+  document.getElementById("weatherRain").textContent = rain;
+  document.getElementById("weatherVisibility").textContent = vis;
+  let sunriseIso = null;
+  let sunsetIso = null;
+  if(data.daily && data.daily.sunrise && data.daily.sunrise.length){
+    sunriseIso = data.daily.sunrise[0];
+    document.getElementById("weatherSunrise").textContent = pfFormatTime(sunriseIso);
+  }
+  if(data.daily && data.daily.sunset && data.daily.sunset.length){
+    sunsetIso = data.daily.sunset[0];
+    document.getElementById("weatherSunset").textContent = pfFormatTime(sunsetIso);
+  }
+  pfRenderLightWindows(sunriseIso, sunsetIso);
+  const photoSummary = document.getElementById("photoWeatherSummary");
+  const l = selectedLocation();
+  const rainNum = rain === "—" ? null : Number(String(rain).replace("%",""));
+  let visKm = !isNaN(visVal) ? visVal / 1000 : null;
+  if(photoSummary) photoSummary.innerHTML = pfPhotographyWeatherSummary(current, rainNum, visKm, l);
+  pfApplyDynamicScore(current, rainNum, visKm, l);
+  pfUpdateTomorrowPlanner(data, l);
+  // Full database rankings are manual-refresh only in this build.
+  pfWeatherStatus(`Live conditions updated ${new Date().toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"})}.`);
+}
+
+
+async function pfFetchForecastForCoords(coords){
+  // v8.6.4: avoid the Open-Meteo "current" block and build current conditions
+  // from the nearest hourly record. This is more stable when API current fields
+  // change or return an empty object.
+  const url =
+    "https://api.open-meteo.com/v1/forecast" +
+    `?latitude=${coords.lat}&longitude=${coords.lon}` +
+    "&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,cloud_cover,wind_speed_10m,wind_direction_10m,precipitation_probability,visibility" +
+    "&daily=sunrise,sunset" +
+    "&forecast_days=2&timezone=auto&wind_speed_unit=mph";
+  const res = await fetch(url, {cache:"no-store"});
+  if(!res.ok) throw new Error(`Open-Meteo ${res.status}`);
+  const data = await res.json();
+  if(data && data.error) throw new Error(data.reason || "Forecast API error");
+  if(!data.hourly || !Array.isArray(data.hourly.time)) throw new Error("Forecast data missing hourly block");
+  return data;
+}
+
+
+function pfFindLocationByName(name){
+  return locations.find(l => l.name === name) || null;
+}
+
+function pfTomorrowMomentWeather(data, moment){
+  const daily = data.daily || {};
+  const hourly = data.hourly || {};
+  if(!daily.sunrise || daily.sunrise.length < 2 || !daily.sunset || daily.sunset.length < 2) return null;
+
+  const targetIso = moment === "sunset" ? daily.sunset[1] : daily.sunrise[1];
+  const index = pfNearestHourlyIndex(hourly, targetIso);
+
+  const vis = pfHourlyValue(hourly, "visibility", index);
+  return {
+    cloud: pfHourlyValue(hourly, "cloud_cover", index),
+    wind: pfHourlyValue(hourly, "wind_speed_10m", index),
+    rain: pfHourlyValue(hourly, "precipitation_probability", index),
+    visibilityKm: vis !== null ? vis / 1000 : null,
+    humidity: pfHourlyValue(hourly, "relative_humidity_2m", index),
+    temp: pfHourlyValue(hourly, "temperature_2m", index),
+    dew: pfHourlyValue(hourly, "dew_point_2m", index),
+    time: targetIso
+  };
+}
+
+function pfBestBetReason(scoreResult, weather){
+  const bits = [];
+  if(scoreResult.reasons && scoreResult.reasons.length) bits.push(scoreResult.reasons.slice(0,3).join(", "));
+  if(weather && weather.cloud !== null) bits.push(`${Math.round(weather.cloud)}% cloud`);
+  if(weather && weather.wind !== null) bits.push(`${Math.round(weather.wind)} mph wind`);
+  if(weather && weather.rain !== null) bits.push(`${Math.round(weather.rain)}% rain`);
+  return bits.join(" · ");
+}
+
+
+async function loadBestRightNow(){
+  return;
+}
+
+async function loadLiveBestBetsTomorrow(){
+  const status = document.getElementById("liveBestTomorrowStatus");
+  const results = document.getElementById("liveBestTomorrowResults");
+  if(status) status.textContent = "Tomorrow rankings paused to prevent Open-Meteo rate limits.";
+  if(results) results.innerHTML = `<div class="tom-card"><strong>Paused for stability</strong><span class="small">Use Refresh Weather on individual locations for now.</span></div>`;
+}
+
+function pfWeatherCacheKey(coords){
+  return `pf_weather_cache_${Number(coords.lat).toFixed(4)}_${Number(coords.lon).toFixed(4)}`;
+}
+
+function pfReadWeatherCache(coords){
+  try{
+    const raw = localStorage.getItem(pfWeatherCacheKey(coords));
+    if(!raw) return null;
+    const pack = JSON.parse(raw);
+    if(!pack || !pack.data || !pack.savedAt) return null;
+    return pack;
+  }catch(e){ return null; }
+}
+
+function pfWriteWeatherCache(coords, data){
+  try{
+    localStorage.setItem(pfWeatherCacheKey(coords), JSON.stringify({savedAt: Date.now(), data}));
+  }catch(e){ console.warn("Weather cache write failed", e); }
+}
+
+function pfWeatherCacheAgeText(savedAt){
+  const mins = Math.max(0, Math.round((Date.now() - Number(savedAt)) / 60000));
+  if(mins < 1) return "just now";
+  if(mins === 1) return "1 minute ago";
+  if(mins < 60) return `${mins} minutes ago`;
+  const hrs = Math.round(mins / 60);
+  return `${hrs} hour${hrs===1?"":"s"} ago`;
+}
+
+async function loadLiveWeatherForSelectedLocation(force=false){
+  const l = selectedLocation();
+  if(!l){
+    pfWeatherStatus("No location selected.");
+    pfClearWeather();
+    return;
+  }
+
+  const coords = pfKnownWeatherCoords[l.name] || ((l.lat !== undefined && l.lon !== undefined && !isNaN(Number(l.lat)) && !isNaN(Number(l.lon))) ? {lat:Number(l.lat), lon:Number(l.lon), label:l.name} : null);
+  if(!coords){
+    pfWeatherStatus("Weather unavailable: add latitude and longitude for this custom location.");
+    pfClearWeather();
+    return;
+  }
+
+  const cached = pfReadWeatherCache(coords);
+  const cacheFreshMs = 30 * 60 * 1000;
+
+  if(cached && (!force || (Date.now() - cached.savedAt) < cacheFreshMs)){
+    try{
+      pfDisplayWeather(cached.data, coords.label);
+      pfWeatherStatus(`Cached weather from ${pfWeatherCacheAgeText(cached.savedAt)}. Tap Refresh Weather to update.`);
+      return;
+    }catch(e){ console.warn("Cached weather render failed", e); }
+  }
+
+  if(!force){
+    pfWeatherStatus("Weather ready. Tap Refresh Weather to avoid API rate limits.");
+    if(!cached) pfClearWeather();
+    return;
+  }
+
+  const cooldownUntil = Number(localStorage.getItem("pf_weather_cooldown_until") || 0);
+  if(cooldownUntil && Date.now() < cooldownUntil){
+    const waitMin = Math.max(1, Math.ceil((cooldownUntil - Date.now()) / 60000));
+    pfWeatherStatus(`Weather paused after API limit. Try again in about ${waitMin} min.`);
+    return;
+  }
+
+  const requestId = ++pfWeatherRequestId;
+  pfWeatherStatus(`Loading weather for ${coords.label}…`);
+  pfClearWeather();
+
+  try{
+    const data = await pfFetchForecastForCoords(coords);
+    if(requestId !== pfWeatherRequestId) return;
+    pfWriteWeatherCache(coords, data);
+    pfDisplayWeather(data, coords.label);
+  }catch(e){
+    console.warn("Weather fetch failed", e);
+    const msg = e && e.message ? e.message : "fetch failed";
+    if(String(msg).includes("429")){
+      localStorage.setItem("pf_weather_cooldown_until", String(Date.now() + 60 * 60 * 1000));
+      pfWeatherStatus("Weather paused — Open-Meteo rate limit hit. Try again later. This build no longer auto-hammers the API.");
+    }else{
+      pfWeatherStatus(`Weather unavailable — ${msg}`);
+    }
+    if(cached){
+      try{
+        pfDisplayWeather(cached.data, coords.label);
+        pfWeatherStatus(`Showing cached weather from ${pfWeatherCacheAgeText(cached.savedAt)}. Live refresh failed: ${msg}`);
+        return;
+      }catch(err){ console.warn("Cached fallback failed", err); }
+    }
+    pfClearWeather();
+    if(typeof pfSetTomorrowUnavailable === "function") pfSetTomorrowUnavailable();
+    const summary=document.getElementById("photoWeatherSummary");
+    if(summary) summary.textContent="Waiting for weather data.";
+  }
+}
+
+
+function render(){
+  renderDashboard();
+  renderCategoryBrowser();
+  renderCustomLocations();
+  const l=selectedLocation();
+  if(!l){
+    showNoLocationState();
+    return;
+  }
+  localStorage.setItem("pf_last_region", document.getElementById("regionSelect").value);
+  localStorage.setItem("pf_last_tier", document.getElementById("tierSelect").value);
+  localStorage.setItem("pf_last_location", document.getElementById("locationSelect").value);
+  addRecentLocation(l);
+  renderFavouriteButton();
+  renderQuickAccess();
+  const [title,copy]=scoreText(l.score);
+  document.getElementById("scoreBox").textContent=l.score.toFixed(1);
+  document.getElementById("scoreTitle").textContent=title;
+  document.getElementById("scoreCopy").textContent=copy;
+  document.getElementById("locName").textContent=l.name;
+  document.getElementById("regionPill").textContent=l.region;
+  document.getElementById("tierPill").textContent=l.tier;
+  document.getElementById("drivePill").textContent=`~${l.driveMin} mins from Blackwater`;
+
+  renderFieldSystem();
+  const currentCategory = document.getElementById("categorySelect").value;
+  const currentStatus = document.getElementById("statusSelect").value;
+  const tierClass = l.tier==="Tier 1" ? "tier1" : l.tier==="Future Exploration" ? "future" : "";
+  const seasonTags = getOpportunityTags().filter(x=>["Spring","Summer","Autumn","Winter","All Year"].includes(x));
+  const seasonHtml = seasonTags.length
+    ? seasonTags.map(x=>`<span class="chip season-pill">${x}</span>`).join("")
+    : `<span class="chip season-pill">All Year</span>`;
+
+  document.getElementById("locationDetails").innerHTML = `
+    <div class="info location-snapshot">
+      <div class="section-title">Location Snapshot</div>
+
+      <div class="snapshot-row">
+        <span class="chip category-chip">${currentCategory}</span>
+        <span class="chip">${currentStatus}</span>
+      </div>
+
+      <div class="snapshot-meta">
+        <div><strong>Area</strong><span>${l.area}</span></div>
+        <div><strong>Season</strong><span>${seasonHtml}</span></div>
+      </div>
+
+      <div class="snapshot-conditions">
+        <strong>Best Conditions</strong>
+        <div>${(l.worksBest||[]).map(x=>`<span class="chip">${x}</span>`).join("") || `<span class="small">No conditions saved yet.</span>`}</div>
+      </div>
+    </div>
+  `;
+  renderHero();
+  renderTargetShot();
+  // Gallery retired in v1.8; one hero image per location is now the priority.
+
+  document.getElementById("parkingPostcode").value = localStorage.getItem(locKey("pf_postcode")) ?? l.parkingPostcode;
+  document.getElementById("w3wText").value = localStorage.getItem(locKey("pf_w3w")) ?? l.w3w;
+  document.getElementById("parkingNotes").value = localStorage.getItem(locKey("pf_parking")) ?? l.parkingNotes;
+  document.getElementById("personalNotes").value = localStorage.getItem(locKey("pf_notes")) ?? l.notes;
+  updateMapLink();
+  renderChecklist();
+  renderVisits();
+  setTimeout(()=>{ if(typeof loadLiveWeatherForSelectedLocation === 'function') loadLiveWeatherForSelectedLocation(false); }, 400);
+}
+function showNoLocationState(){
+  document.getElementById("scoreBox").textContent="—";
+  document.getElementById("scoreTitle").textContent="No locations found.";
+  document.getElementById("scoreCopy").textContent="Change the tier or region selection. Bluebells, wild garlic and deer entries currently live under Seasonal.";
+  document.getElementById("locName").textContent="No matching location";
+  document.getElementById("regionPill").textContent=document.getElementById("regionSelect").value || "";
+  document.getElementById("tierPill").textContent=document.getElementById("tierSelect").value || "";
+  document.getElementById("drivePill").textContent="Try Seasonal";
+  document.getElementById("heroSlot").innerHTML="No location selected";
+  if(document.getElementById("targetSlot")) document.getElementById("targetSlot").innerHTML="No location selected";
+  if(document.getElementById("targetDescription")) document.getElementById("targetDescription").value="";
+  if(document.getElementById("targetPriority")) document.getElementById("targetPriority").value="Medium";
+  if(document.getElementById("targetStatus")) document.getElementById("targetStatus").value="Not Attempted";
+  if(document.getElementById("opportunityTagGroups")) document.getElementById("opportunityTagGroups").innerHTML='<div class="empty-state">No tags until a location is selected.</div>';
+  document.getElementById("locationDetails").innerHTML='<div class="empty-state">No locations match this region and tier combination.<br><br>Try changing the tier to <b>Seasonal</b>.</div>';
+  document.getElementById("galleryGrid").innerHTML='<div class="gallery-tile">No gallery</div>';
+  document.getElementById("parkingPostcode").value="";
+  document.getElementById("w3wText").value="";
+  document.getElementById("parkingNotes").value="";
+  document.getElementById("personalNotes").value="";
+  document.getElementById("mapLink").href="#";
+  document.getElementById("categorySelect").value="Locations";
+  document.getElementById("statusSelect").value="🔴 Not Visited";
+  document.getElementById("nextVisitChecklist").innerHTML='<div class="empty-state">No checklist until a location is selected.</div>';
+  document.getElementById("visitStats").innerHTML='<div class="stat"><b>—</b><span>Visits</span></div><div class="stat"><b>—</b><span>Average rating</span></div><div class="stat"><b>—</b><span>Most used lens</span></div>';
+  document.getElementById("visitList").innerHTML='<p class="small">No location selected.</p>';
+  renderQuickAccess();
+}
+
+function renderDashboard(){
+  const time=document.getElementById("dashTime").value, range=Number(document.getElementById("dashRange").value);
+  const ranked=locations.filter(l=>driveMatches(l,range) && l.tier!=="Future Exploration").map(l=>({...l,index:locations.indexOf(l),s:timeScore(l,time)})).sort((a,b)=>b.s-a.s).slice(0,5);
+  document.getElementById("dashboard").innerHTML = ranked.map((l,i)=>`
+    <div class="best" onclick="selectLocation(${l.index})">
+      <div class="rank">${i+1}</div>
+      <div><strong>${l.name}</strong><span>${l.region} · ${l.tier} · ~${l.driveMin} mins</span><div class="why">Why: ${whyFor(l,time).join(", ")}</div></div>
+      <div class="score">${l.s.toFixed(1)}</div>
+    </div>`).join("") || "<p class='small'>No locations in this drive category yet.</p>";
+}
+function selectLocation(i){
+  const l=locations[i];
+  document.getElementById("regionSelect").value=l.region;
+  document.getElementById("tierSelect").value=l.tier;
+  populateLocations();
+  document.getElementById("locationSelect").value=i;
+  render();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+async function renderHero(){
+  const slot=document.getElementById("heroSlot");
+  const img=await getHeroFromDB(locKey("pf_hero"));
+  slot.innerHTML = img ? `<img src="${img}" alt="Hero image">` : "Hero image placeholder<br>Add your photo here";
+  document.getElementById("heroSaved").textContent="";
+}
+function handleHeroUpload(e){
+  if(!selectedLocation()) return;
+  const file=e.target.files[0]; if(!file) return;
+
+  const reader=new FileReader();
+  reader.onload=(ev)=>{
+    const img=new Image();
+    img.onload=async ()=>{
+      const canvas=document.createElement('canvas');
+      const maxW=1200;
+      const scale=Math.min(1,maxW/img.width);
+      canvas.width=Math.round(img.width*scale);
+      canvas.height=Math.round(img.height*scale);
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+
+      const compressed=canvas.toDataURL('image/jpeg',0.70);
+      try{
+        await saveHeroToDB(locKey("pf_hero"), compressed);
+        await renderHero();
+        document.getElementById("heroSaved").textContent="Hero image saved.";
+      }catch(err){
+        console.error(err);
+        alert("Image could not be saved. Try a smaller export, or clear a few old hero images.");
+      }
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+async function clearHero(){ if(!selectedLocation()) return; await deleteHeroFromDB(locKey("pf_hero")); await renderHero(); }
+function getGallery(){ if(!selectedLocation()) return []; return JSON.parse(localStorage.getItem(locKey("pf_gallery")) || "[]"); }
+function renderGallery(){
+  const imgs=getGallery();
+  let html = imgs.map(src=>`<div class="gallery-tile"><img src="${src}"></div>`).join("");
+  const blanks=Math.max(3-imgs.length,0);
+  for(let i=0;i<blanks;i++) html += `<div class="gallery-tile">Gallery slot</div>`;
+  document.getElementById("galleryGrid").innerHTML=html;
+  document.getElementById("gallerySaved").textContent="";
+}
+function handleGalleryUpload(e){
+  if(!selectedLocation()) return;
+  const files=[...e.target.files]; if(!files.length) return;
+  const existing=getGallery();
+  let loaded=0;
+
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=(ev)=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        const maxW=1200;
+        const scale=Math.min(1,maxW/img.width);
+        canvas.width=Math.round(img.width*scale);
+        canvas.height=Math.round(img.height*scale);
+        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+
+        const compressed=canvas.toDataURL('image/jpeg',0.78);
+        existing.push(compressed);
+        loaded++;
+
+        if(loaded===files.length){
+          try{
+            localStorage.setItem(locKey("pf_gallery"), JSON.stringify(existing));
+            renderGallery();
+            document.getElementById("gallerySaved").textContent="Gallery images saved.";
+          }catch(err){
+            alert("Gallery images are too large for storage. Try adding fewer images.");
+          }
+        }
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function clearGallery(){ if(!selectedLocation()) return; localStorage.removeItem(locKey("pf_gallery")); renderGallery(); }
+function saveParking(){
+  if(!selectedLocation()) return;
+  localStorage.setItem(locKey("pf_postcode"), document.getElementById("parkingPostcode").value);
+  localStorage.setItem(locKey("pf_w3w"), document.getElementById("w3wText").value);
+  localStorage.setItem(locKey("pf_parking"), document.getElementById("parkingNotes").value);
+  document.getElementById("parkingSaved").textContent="Parking saved.";
+  updateMapLink();
+}
+function updateMapLink(){
+  const l=selectedLocation(); if(!l) return;
+  const q = document.getElementById("w3wText").value.trim() || document.getElementById("parkingPostcode").value.trim() || document.getElementById("parkingNotes").value.trim() || l.name;
+  document.getElementById("mapLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q + " " + l.name);
+}
+function saveNotes(){ if(!selectedLocation()) return; localStorage.setItem(locKey("pf_notes"), document.getElementById("personalNotes").value); document.getElementById("notesSaved").textContent="Notes saved."; }
+function visitKey(){ return locKey("pf_visits"); }
+function getVisits(){ return JSON.parse(localStorage.getItem(visitKey()) || "[]"); }
+function saveVisit(){
+  if(!selectedLocation()) return;
+  const v={date:document.getElementById("visitDate").value||new Date().toISOString().slice(0,10),rating:Number(document.getElementById("visitRating").value),conditions:document.getElementById("visitConditions").value.trim(),lens:document.getElementById("visitLens").value.trim(),notes:document.getElementById("visitNotes").value.trim()};
+  const vs=getVisits(); vs.unshift(v); localStorage.setItem(visitKey(), JSON.stringify(vs)); document.getElementById("visitSaved").textContent="Visit added."; clearVisitForm(false); renderVisits();
+}
+function clearVisitForm(reset=true){ if(reset) document.getElementById("visitDate").valueAsDate=new Date(); document.getElementById("visitRating").value="5"; document.getElementById("visitConditions").value=""; document.getElementById("visitLens").value=""; document.getElementById("visitNotes").value=""; }
+function clearVisits(){ if(!selectedLocation()) return; if(confirm("Clear visits for this location?")){ localStorage.removeItem(visitKey()); renderVisits(); } }
+function renderVisits(){
+  if(!selectedLocation()) return;
+  const vs=getVisits(); const avg=vs.length?(vs.reduce((s,v)=>s+Number(v.rating||0),0)/vs.length).toFixed(1):"—";
+  let lens="—"; if(vs.length){ const c={}; vs.forEach(v=>{if(v.lens)c[v.lens]=(c[v.lens]||0)+1}); lens=Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—"; }
+  document.getElementById("visitStats").innerHTML=`<div class="stat"><b>${vs.length}</b><span>Visits</span></div><div class="stat"><b>${avg}</b><span>Average rating</span></div><div class="stat"><b>${lens}</b><span>Most used lens</span></div>`;
+  document.getElementById("visitList").innerHTML=vs.length?vs.map(v=>`<div class="item"><strong>${v.date} · ${"★".repeat(v.rating)}${"☆".repeat(5-v.rating)}</strong><span><b>Conditions:</b> ${v.conditions||"Not added"}<br><b>Best lens:</b> ${v.lens||"Not added"}<br><b>Notes:</b> ${v.notes||"No notes"}</span></div>`).join(""):"<p class='small'>No visits logged yet for this location.</p>";
+}
+init();
+
+function pfReliableBoot(){
+  try{
+    const loc = document.getElementById("locationSelect");
+    if(loc && (!loc.value || loc.options.length === 0)){
+      let saved = localStorage.getItem("pf_last_location");
+      let idx = (saved !== null && locations[Number(saved)]) ? Number(saved) : 0;
+      pfSelectLocationAndOverview(idx);
+    }else if(typeof render === "function"){
+      render();
+    }
+    if(typeof renderCategoryBrowser === "function") renderCategoryBrowser();
+    pfRestorePage();
+  }catch(e){
+    console.error("PhotoForecast reliable boot issue:", e);
+    pfRestorePage();
+  }
+}
+
+
+setTimeout(()=>{ if(typeof pfRepairCompositionDataAfterImport==="function") pfRepairCompositionDataAfterImport(); },900);
+
+
+function pfWireLocationRefresh(){
+  ["regionSelect","tierSelect","locationSelect"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && !el.dataset.pfCompRefresh){
+      el.dataset.pfCompRefresh="yes";
+      el.addEventListener("change",()=>setTimeout(()=>{ if(typeof renderCompositions==="function") renderCompositions(); },80));
+    }
+  });
+}
+setTimeout(()=>{ pfWireLocationRefresh(); if(typeof renderCompositions==="function") renderCompositions(); if(typeof renderCustomLocations==="function") renderCustomLocations(); },600);
+
+</script>
+</body>
+  </html>
